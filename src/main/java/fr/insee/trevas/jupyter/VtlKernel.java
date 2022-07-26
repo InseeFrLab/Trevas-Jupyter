@@ -1,5 +1,7 @@
 package fr.insee.trevas.jupyter;
 
+import fr.insee.vtl.model.Structured;
+import fr.insee.vtl.spark.SparkDataset;
 import io.github.spencerpark.jupyter.channels.JupyterConnection;
 import io.github.spencerpark.jupyter.channels.JupyterSocket;
 import io.github.spencerpark.jupyter.kernel.BaseKernel;
@@ -9,12 +11,9 @@ import io.github.spencerpark.jupyter.kernel.display.DisplayData;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineFactory;
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
 import java.util.Objects;
 import java.util.logging.Level;
 
@@ -67,8 +66,14 @@ public class VtlKernel extends BaseKernel {
     @Override
     public DisplayData eval(String expr) throws Exception {
         this.engine.eval(expr);
+        SparkDataset res = (SparkDataset) this.engine.get("res");
         DisplayData displayData = new DisplayData();
-        displayData.putText("Hello, World!");
+        StringBuilder sb = new StringBuilder();
+        Structured.DataStructure dataStructure = res.getDataStructure();
+        dataStructure.entrySet().forEach(entry -> {
+            sb.append(entry.getKey()).append("\n");
+        });
+        displayData.putText("Columns: \n" + sb);
         return displayData;
     }
 
