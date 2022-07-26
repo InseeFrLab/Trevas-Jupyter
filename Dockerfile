@@ -7,7 +7,7 @@ RUN apt-get update --yes && \
     openjdk-11-jre && \
     apt-get clean
 
-COPY target/appassembler/* /usr/local/share/jupyter/kernels/trevas/
+COPY target/appassembler/ /usr/local/share/jupyter/kernels/trevas/
 COPY kernel.json /usr/local/share/jupyter/kernels/trevas/
 
 # Set user back to privileged user.
