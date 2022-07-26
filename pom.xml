@@ -5,7 +5,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <name>VTL Jupyter kernel</name>
-    <artifactId>vtl-jupyter</artifactId>
+    <description>Jupyter notebook providing VTL support through Trevas engine</description>
+    <artifactId>trevas-jupyter</artifactId>
     <groupId>fr.insee</groupId>
     <version>0.1.0</version>
 
@@ -18,6 +19,7 @@
 
     <properties>
         <jdk.version>11</jdk.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <trevas.version>0.4.2</trevas.version>
     </properties>
 
@@ -56,10 +58,10 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>fr.insee.vtl.jupyter.VtlKernel</mainClass>
+                            <mainClass>fr.insee.trevas.jupyter.VtlKernel</mainClass>
                         </manifest>
                         <manifestEntries>
-                            <Automatic-Module-Name>fr.insee.vtl.jupyter</Automatic-Module-Name>
+                            <Automatic-Module-Name>fr.insee.trevas.jupyter</Automatic-Module-Name>
                         </manifestEntries>
                     </archive>
                 </configuration>

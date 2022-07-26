@@ -1,4 +1,4 @@
-package fr.insee.vtl.jupyter;
+package fr.insee.trevas.jupyter;
 
 import io.github.spencerpark.jupyter.channels.JupyterConnection;
 import io.github.spencerpark.jupyter.channels.JupyterSocket;
