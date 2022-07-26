@@ -1,4 +1,4 @@
-FROM jupyter/base-notebook:latest
+FROM inseefrlab/jupyter-datascience:latest
 
 USER root
 
