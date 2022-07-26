@@ -7,9 +7,11 @@ RUN apt-get update --yes && \
     openjdk-11-jre && \
     apt-get clean
 
-COPY target/lib /usr/local/share/jupyter/kernels/vtl/lib/
-COPY target/vtl-jupyter-*.jar /usr/local/share/jupyter/kernels/vtl/
-COPY kernel.json /usr/local/share/jupyter/kernels/vtl
+COPY target/lib /usr/local/share/jupyter/kernels/trevas/lib/
+COPY target/trevas-jupyter-*.jar /usr/local/share/jupyter/kernels/trevas/
+COPY target/vtl-engine-*.jar target/vtl-engine.jar
+COPY target/vtl-spark-*.jar target/vtl-spark.jar
+COPY kernel.json /usr/local/share/jupyter/kernels/trevas
 
 # Set user back to priviledged user.
 USER $NB_USER
