@@ -9,7 +9,6 @@ import io.github.spencerpark.jupyter.kernel.display.DisplayData;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineFactory;
-import javax.script.ScriptEngineManager;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -19,10 +18,13 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Objects;
 import java.util.logging.Level;
 
+import static fr.insee.trevas.jupyter.Utils.buildSparkEngine;
+
 public class VtlKernel extends BaseKernel {
 
     private final ScriptEngine engine;
     private final LanguageInfo info;
+
     public VtlKernel(ScriptEngine engine) {
         this.engine = Objects.requireNonNull(engine);
         ScriptEngineFactory factory = engine.getFactory();
@@ -31,9 +33,10 @@ public class VtlKernel extends BaseKernel {
                 .build();
     }
 
-    public static void main(String[] args) throws IOException, NoSuchAlgorithmException, InvalidKeyException {
-        ScriptEngineManager mgr = new ScriptEngineManager();
-        var engine = mgr.getEngineByExtension("vtl");
+    public static void main(String[] args) throws Exception {
+
+        ScriptEngine engine = buildSparkEngine();
+
         System.out.println("Loaded VTL engine " + engine.getFactory().getEngineVersion());
 
         if (args.length < 1)
@@ -59,6 +62,7 @@ public class VtlKernel extends BaseKernel {
         connection.connect();
         connection.waitUntilClose();
     }
+
 
     @Override
     public DisplayData eval(String expr) throws Exception {
