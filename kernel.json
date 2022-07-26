@@ -1,9 +1,6 @@
 {
   "argv": [
-    "java",
-    "-classpath",
-    "/usr/local/share/jupyter/kernels/trevas/lib/jupyter-jvm-basekernel-2.3.0.jar:/usr/local/share/jupyter/kernels/trevas/lib/jeromq-0.5.1.jar:/usr/local/share/jupyter/kernels/trevas/lib/jnacl-1.0.0.jar:/usr/local/share/jupyter/kernels/trevas/lib/gson-2.8.5.jar:/usr/local/share/jupyter/kernels/trevas/trevas-jupyter.jar:/usr/local/share/jupyter/kernels/trevas/vtl-engine.jar:/usr/local/share/jupyter/kernels/trevas/vtl-spark.jar",
-    "fr.insee.trevas.jupyter.VtlKernel",
+    "/usr/local/share/jupyter/kernels/trevas/bin/trevas",
     "{connection_file}"
   ],
   "display_name": "Trevas VTL",
