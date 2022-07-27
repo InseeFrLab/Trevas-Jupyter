@@ -108,11 +108,18 @@ public class VtlKernel extends BaseKernel {
     public static Object showMetadata(Object o) {
         if (o instanceof Dataset) {
             SparkDataset ds = (SparkDataset) o;
-            // TODO: build "beautiful" html output for each varID (Structure + X lines)
             StringBuilder sb = new StringBuilder();
             Structured.DataStructure dataStructure = ds.getDataStructure();
-            dataStructure.forEach((key, value) -> sb.append(key).append("\n"));
-            displayData.putText("Columns: \n" + sb);
+            dataStructure.forEach((key, value) -> {
+                sb.append(key)
+                        .append(" (")
+                        .append(value.getRole().name())
+                        .append(" - ")
+                        .append(value.getType().getSimpleName())
+                        .append(")")
+                        .append("\n");
+            });
+            displayData.putText(sb.toString());
         } else {
             displayData.putText(o.toString());
         }
