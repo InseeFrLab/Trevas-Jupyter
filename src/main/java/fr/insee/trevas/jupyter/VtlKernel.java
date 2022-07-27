@@ -1,6 +1,7 @@
 package fr.insee.trevas.jupyter;
 
 import fr.insee.vtl.engine.VtlScriptEngine;
+import fr.insee.vtl.model.Dataset;
 import fr.insee.vtl.model.Structured;
 import fr.insee.vtl.spark.SparkDataset;
 import io.github.spencerpark.jupyter.channels.JupyterConnection;
@@ -21,6 +22,7 @@ import java.util.logging.Level;
 
 public class VtlKernel extends BaseKernel {
 
+    private static final DisplayData displayData = new DisplayData();
     private static SparkSession spark;
     private final VtlScriptEngine engine;
     private final LanguageInfo info;
@@ -38,6 +40,44 @@ public class VtlKernel extends BaseKernel {
 
     public static SparkDataset loadS3(String path) throws Exception {
         return Utils.readParquetDataset(spark, path);
+    }
+
+    public static String writeS3(String path, Dataset ds) {
+        // TODO: replace with SparkDataset constructor when available in Trevas
+        if (ds instanceof SparkDataset) {
+            Utils.writeParquetDataset(spark, path, (SparkDataset) ds);
+            return "Dataset writes to " + path;
+        } else {
+            return "Dataset is not a SparkDataset";
+        }
+    }
+
+    public static Object show(Object o) {
+        if (o instanceof Dataset) {
+            SparkDataset ds = (SparkDataset) o;
+            // TODO: build "beautiful" html output for each varID (Structure + X lines)
+            StringBuilder sb = new StringBuilder();
+            Structured.DataStructure dataStructure = ds.getDataStructure();
+            dataStructure.forEach((key, value) -> sb.append(key).append("\n"));
+            displayData.putText("Columns: \n" + sb);
+        } else {
+            displayData.putText(o.toString());
+        }
+        return o;
+    }
+
+    public static Object showMetadata(Object o) {
+        if (o instanceof Dataset) {
+            SparkDataset ds = (SparkDataset) o;
+            // TODO: build "beautiful" html output for each varID (Structure + X lines)
+            StringBuilder sb = new StringBuilder();
+            Structured.DataStructure dataStructure = ds.getDataStructure();
+            dataStructure.forEach((key, value) -> sb.append(key).append("\n"));
+            displayData.putText("Columns: \n" + sb);
+        } else {
+            displayData.putText(o.toString());
+        }
+        return o;
     }
 
     public static void main(String[] args) throws Exception {
@@ -67,10 +107,12 @@ public class VtlKernel extends BaseKernel {
     }
 
     private void registerMethods() throws NoSuchMethodException {
-        // TODO: insert print
         // TODO: insert printMetadata
-        // TODO: insert writes3
+        // TODO: insert writeS3
         this.engine.registerMethod("loadS3", VtlKernel.class.getMethod("loadS3", String.class));
+        this.engine.registerMethod("writeS3", VtlKernel.class.getMethod("writeS3", String.class));
+        this.engine.registerMethod("show", VtlKernel.class.getMethod("show", Object.class));
+        this.engine.registerMethod("showMetadata", VtlKernel.class.getMethod("showMetadata", Object.class));
     }
 
     public VtlScriptEngine buildSparkEngine(SparkSession spark) throws Exception {
@@ -78,33 +120,20 @@ public class VtlKernel extends BaseKernel {
         ScriptEngine engine = mgr.getEngineByExtension("vtl");
         engine.put("$vtl.engine.processing_engine_names", "spark");
         engine.put("$vtl.spark.session", spark);
-        VtlScriptEngine vtlEngine = (VtlScriptEngine) engine;
-        return vtlEngine;
+        return (VtlScriptEngine) engine;
     }
 
     private SparkSession buildSparkSession() {
         SparkSession.Builder sparkBuilder = SparkSession.builder()
                 .appName("trevas-jupyter")
                 .master("local");
-        SparkSession spark = sparkBuilder.getOrCreate();
-        return spark;
+        return sparkBuilder.getOrCreate();
     }
 
     @Override
-    public DisplayData eval(String expr) throws Exception {
+    public synchronized DisplayData eval(String expr) throws Exception {
         this.engine.eval(expr);
-        // TODO: get varID from expr
-        // TODO: loop on them into bindings
-        SparkDataset res = (SparkDataset) this.engine.get("res");
-        DisplayData displayData = new DisplayData();
-        // TODO: build "beautiful" html output for each varID (Structure + X lines)
-        StringBuilder sb = new StringBuilder();
-        Structured.DataStructure dataStructure = res.getDataStructure();
-        dataStructure.entrySet().forEach(entry -> {
-            sb.append(entry.getKey()).append("\n");
-        });
-        displayData.putText("Columns: \n" + sb);
-        return displayData;
+        return new DisplayData(displayData);
     }
 
     @Override
