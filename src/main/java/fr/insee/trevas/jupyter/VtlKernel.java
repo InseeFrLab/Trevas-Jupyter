@@ -85,7 +85,7 @@ public class VtlKernel extends BaseKernel {
 
     private static void showDataset(Dataset dataset) {
         var b = new StringBuilder();
-        b.append("<table id='table_id' class='display'>");
+        b.append("<table id='dataset_").append(dataset.hashCode()).append("' class='display'>");
         b.append("<thead>");
         b.append("<tr>");
         dataset.getDataStructure().forEach((name, component) -> {
@@ -99,6 +99,7 @@ public class VtlKernel extends BaseKernel {
             dataset.getDataStructure().keySet().forEach(name -> {
                 b.append("<td>").append(row.get(name)).append("</td>");
             });
+            b.append("</tr>");
         });
         b.append("</tbody>");
         b.append("</table>");
