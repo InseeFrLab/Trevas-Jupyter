@@ -1,5 +1,6 @@
 package fr.insee.trevas.jupyter;
 
+import fr.insee.vtl.engine.VtlScriptEngine;
 import fr.insee.vtl.model.Structured;
 import fr.insee.vtl.spark.SparkDataset;
 import org.apache.spark.sql.Dataset;
@@ -11,23 +12,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class Utils {
-
-    public static ScriptEngine buildSparkEngine() throws Exception {
-        ScriptEngineManager mgr = new ScriptEngineManager();
-        ScriptEngine engine = mgr.getEngineByExtension("vtl");
-        SparkSession.Builder sparkBuilder = SparkSession.builder()
-                .appName("trevas-jupyter")
-                .master("local");
-        SparkSession spark = sparkBuilder.getOrCreate();
-        ScriptContext context = engine.getContext();
-        Bindings bindings = new SimpleBindings();
-        SparkDataset ds = readParquetDataset(spark, "s3a://projet-vtl/fideli/small");
-        bindings.put("ds", ds);
-        context.setBindings(bindings, ScriptContext.ENGINE_SCOPE);
-        engine.put("$vtl.engine.processing_engine_names", "spark");
-        engine.put("$vtl.spark.session", spark);
-        return engine;
-    }
 
     public static SparkDataset readParquetDataset(SparkSession spark, String path) throws Exception {
         Dataset<Row> dataset;
