@@ -73,16 +73,36 @@ public class VtlKernel extends BaseKernel {
 
     public static Object show(Object o) {
         if (o instanceof Dataset) {
-            SparkDataset ds = (SparkDataset) o;
-            // TODO: build "beautiful" html output for each varID (Structure + X lines)
-            StringBuilder sb = new StringBuilder();
-            Structured.DataStructure dataStructure = ds.getDataStructure();
-            dataStructure.forEach((key, value) -> sb.append(key).append("\n"));
-            displayData.putText("Columns: \n" + sb);
+            SparkDataset dataset = asSparkDataset((Dataset) o);
+            var roles = dataset.getDataStructure().entrySet().stream()
+                    .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().getRole()));
+            showDataset(new SparkDataset(dataset.getSparkDataset().limit(50), roles));
         } else {
             displayData.putText(o.toString());
         }
         return o;
+    }
+
+    private static void showDataset(Dataset dataset) {
+        var b = new StringBuilder();
+        b.append("<table id='table_id' class='display'>");
+        b.append("<thead>");
+        b.append("<tr>");
+        dataset.getDataStructure().forEach((name, component) -> {
+            b.append("<th>").append(name).append("</th>");
+        });
+        b.append("</tr>");
+        b.append("</thead>");
+        b.append("<tbody>");
+        dataset.getDataPoints().forEach(row -> {
+            b.append("<tr>");
+            dataset.getDataStructure().keySet().forEach(name -> {
+                b.append("<td>").append(row.get(name)).append("</td>");
+            });
+        });
+        b.append("</tbody>");
+        b.append("</table>");
+        displayData.putHTML(b.toString());
     }
 
     public static Object showMetadata(Object o) {
