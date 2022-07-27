@@ -126,10 +126,8 @@ public class VtlKernel extends BaseKernel {
     }
 
     private void registerMethods() throws NoSuchMethodException {
-        // TODO: insert printMetadata
-        // TODO: insert writeS3
         this.engine.registerMethod("loadS3", VtlKernel.class.getMethod("loadS3", String.class));
-        this.engine.registerMethod("writeS3", VtlKernel.class.getMethod("writeS3", String.class));
+        this.engine.registerMethod("writeS3", VtlKernel.class.getMethod("writeS3", String.class, Dataset.class));
         this.engine.registerMethod("show", VtlKernel.class.getMethod("show", Object.class));
         this.engine.registerMethod("showMetadata", VtlKernel.class.getMethod("showMetadata", Object.class));
     }
