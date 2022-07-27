@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 
 public class VtlKernel extends BaseKernel {
 
-    private static final DisplayData displayData = new DisplayData();
+    private static DisplayData displayData = new DisplayData();
     private static SparkSession spark;
     private final VtlScriptEngine engine;
     private final LanguageInfo info;
@@ -149,8 +149,9 @@ public class VtlKernel extends BaseKernel {
 
     @Override
     public synchronized DisplayData eval(String expr) throws Exception {
+        displayData = new DisplayData();
         this.engine.eval(expr);
-        return new DisplayData(displayData);
+        return displayData;
     }
 
     @Override
