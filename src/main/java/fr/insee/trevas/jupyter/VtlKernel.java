@@ -18,7 +18,10 @@ import javax.script.ScriptEngineManager;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collection;
+import java.util.Map;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 public class VtlKernel extends BaseKernel {
 
@@ -42,14 +45,30 @@ public class VtlKernel extends BaseKernel {
         return Utils.readParquetDataset(spark, path);
     }
 
+    private static Map<String, Dataset.Role> getRoleMap(Collection<Structured.Component> components) {
+        return components.stream()
+                .collect(Collectors.toMap(
+                        Structured.Component::getName,
+                        Structured.Component::getRole
+                ));
+    }
+
+    private static Map<String, Dataset.Role> getRoleMap(fr.insee.vtl.model.Dataset dataset) {
+        return getRoleMap(dataset.getDataStructure().values());
+    }
+
+    private static SparkDataset asSparkDataset(Dataset dataset) {
+        if (dataset instanceof SparkDataset) {
+            return (SparkDataset) dataset;
+        } else {
+            return new SparkDataset(dataset, getRoleMap(dataset), spark);
+        }
+    }
+
     public static String writeS3(String path, Dataset ds) {
         // TODO: replace with SparkDataset constructor when available in Trevas
-        if (ds instanceof SparkDataset) {
-            Utils.writeParquetDataset(spark, path, (SparkDataset) ds);
-            return "Dataset writes to " + path;
-        } else {
-            return "Dataset is not a SparkDataset";
-        }
+        Utils.writeParquetDataset(spark, path, asSparkDataset(ds));
+        return "Dataset written: '" + path + "'";
     }
 
     public static Object show(Object o) {
