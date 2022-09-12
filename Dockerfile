@@ -1,4 +1,4 @@
-FROM inseefrlab/jupyter-datascience:latest
+FROM inseefrlab/onyxia-jupyter-python:latest
 
 USER root
 
