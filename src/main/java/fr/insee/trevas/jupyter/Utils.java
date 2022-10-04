@@ -38,7 +38,7 @@ public class Utils {
                     .option("multiLine", "true")
                     .json(path + "/structure");
         } catch (Exception e) {
-            throw new Exception("An error has occurred while loading structure for: " + path);
+            return new SparkDataset(dataset, Map.of());
         }
         Map<String, fr.insee.vtl.model.Dataset.Role> components = json.collectAsList().stream().map(r -> {
                             String name = r.getAs("name");
