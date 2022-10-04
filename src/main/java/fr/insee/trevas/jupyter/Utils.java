@@ -18,23 +18,27 @@ public class Utils {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
-    public static SparkDataset readParquetDataset(SparkSession spark, String path, String format) throws Exception {
+    public static SparkDataset readParquetDataset(SparkSession spark, String path) throws Exception {
         Dataset<Row> dataset;
         Dataset<Row> json;
         try {
-            if ("parquet".equals(format) || format == null)
-                dataset = spark.read().parquet(path + "/data");
-            else if ("csv".equals(format) || format == null)
+            dataset = spark.read().parquet(path + "/data");
+        } catch (Exception e) {
+            try {
                 dataset = spark.read()
                         .option("delimiter", ";")
                         .option("header", "true")
                         .csv(path + "/data");
-            else throw new Exception("Bad format. parquet & csv are supported");
+            } catch (Exception ee) {
+                throw new Exception("Bad format. parquet & csv are supported");
+            }
+        }
+        try {
             json = spark.read()
                     .option("multiLine", "true")
                     .json(path + "/structure");
         } catch (Exception e) {
-            throw new Exception("An error has occurred while loading: " + path);
+            throw new Exception("An error has occurred while loading structure for: " + path);
         }
         Map<String, fr.insee.vtl.model.Dataset.Role> components = json.collectAsList().stream().map(r -> {
                             String name = r.getAs("name");
