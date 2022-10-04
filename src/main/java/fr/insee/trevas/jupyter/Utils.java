@@ -52,6 +52,36 @@ public class Utils {
         return new SparkDataset(dataset, components);
     }
 
+    public static SparkDataset readCSVDatasetFromHttp(SparkSession spark, String path) throws Exception {
+        Dataset<Row> dataset;
+        /*Dataset<Row> json;*/
+        try {
+            dataset = spark.read()
+                    .option("delimiter", ";")
+                    .option("header", "true")
+                    .csv(path);
+        } catch (Exception e) {
+            throw new Exception("Error while loading data");
+        }
+        /*try {
+            json = spark.read()
+                    .option("multiLine", "true")
+                    .json(path + "/structure");
+        } catch (Exception e) {
+            throw new Exception("An error has occurred while loading structure for: " + path);
+        }
+        Map<String, fr.insee.vtl.model.Dataset.Role> components = json.collectAsList().stream().map(r -> {
+                            String name = r.getAs("name");
+                            Class type = r.getAs("type").getClass();
+                            fr.insee.vtl.model.Dataset.Role role = fr.insee.vtl.model.Dataset.Role.valueOf(r.getAs("role"));
+                            return new Structured.Component(name, type, role);
+                        }
+                ).collect(Collectors.toList())
+                .stream()
+                .collect(Collectors.toMap(Structured.Component::getName, Structured.Component::getRole));*/
+        return new SparkDataset(dataset, Map.of());
+    }
+
     public static void writeParquetDataset(SparkSession spark, String location, SparkDataset dataset) {
         org.apache.spark.sql.Dataset<Row> sparkDataset = dataset.getSparkDataset();
         sparkDataset.write().mode(SaveMode.Overwrite).parquet(location + "/data");
