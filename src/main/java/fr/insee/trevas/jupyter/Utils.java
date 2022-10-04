@@ -26,7 +26,7 @@ public class Utils {
         } catch (Exception e) {
             try {
                 dataset = spark.read()
-                        .option("delimiter", ";")
+                        .option("sep", ";")
                         .option("header", "true")
                         .csv(path + "/data");
             } catch (Exception ee) {
