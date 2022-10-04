@@ -18,11 +18,18 @@ public class Utils {
 
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
-    public static SparkDataset readParquetDataset(SparkSession spark, String path) throws Exception {
+    public static SparkDataset readParquetDataset(SparkSession spark, String path, String format) throws Exception {
         Dataset<Row> dataset;
         Dataset<Row> json;
         try {
-            dataset = spark.read().parquet(path + "/data");
+            if ("parquet".equals(format) || format == null)
+                dataset = spark.read().parquet(path + "/data");
+            else if ("csv".equals(format) || format == null)
+                dataset = spark.read()
+                        .option("delimiter", ";")
+                        .option("header", "true")
+                        .csv(path + "/data");
+            else throw new Exception("Bad format. parquet & csv are supported");
             json = spark.read()
                     .option("multiLine", "true")
                     .json(path + "/structure");

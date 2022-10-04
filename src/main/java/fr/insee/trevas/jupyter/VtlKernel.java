@@ -42,7 +42,11 @@ public class VtlKernel extends BaseKernel {
     }
 
     public static SparkDataset loadS3(String path) throws Exception {
-        return Utils.readParquetDataset(spark, path);
+        return Utils.readParquetDataset(spark, path, null);
+    }
+
+    public static SparkDataset loadS3(String path, String format) throws Exception {
+        return Utils.readParquetDataset(spark, path, format);
     }
 
     private static Map<String, Dataset.Role> getRoleMap(Collection<Structured.Component> components) {
@@ -155,6 +159,7 @@ public class VtlKernel extends BaseKernel {
 
     private void registerMethods() throws NoSuchMethodException {
         this.engine.registerMethod("loadS3", VtlKernel.class.getMethod("loadS3", String.class));
+        this.engine.registerMethod("loadS3", VtlKernel.class.getMethod("loadS3", String.class, String.class));
         this.engine.registerMethod("writeS3", VtlKernel.class.getMethod("writeS3", String.class, Dataset.class));
         this.engine.registerMethod("show", VtlKernel.class.getMethod("show", Object.class));
         this.engine.registerMethod("showMetadata", VtlKernel.class.getMethod("showMetadata", Object.class));
