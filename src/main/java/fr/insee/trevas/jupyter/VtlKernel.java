@@ -51,6 +51,10 @@ public class VtlKernel extends BaseKernel {
         return Utils.readParquetDataset(spark, path);
     }
 
+    public static SparkDataset loadCSVFromHttp(String path) throws Exception {
+        return Utils.readCSVDatasetFromHttp(spark, path);
+    }
+
     private static Map<String, Dataset.Role> getRoleMap(Collection<Structured.Component> components) {
         return components.stream()
                 .collect(Collectors.toMap(
@@ -176,6 +180,7 @@ public class VtlKernel extends BaseKernel {
         this.engine.registerMethod("writeS3", VtlKernel.class.getMethod("writeS3", String.class, Dataset.class));
         this.engine.registerMethod("show", VtlKernel.class.getMethod("show", Object.class));
         this.engine.registerMethod("showMetadata", VtlKernel.class.getMethod("showMetadata", Object.class));
+        this.engine.registerMethod("loadCSVFromHttp", VtlKernel.class.getMethod("loadCSVFromHttp", String.class));
     }
 
     public VtlScriptEngine buildSparkEngine(SparkSession spark) throws Exception {
