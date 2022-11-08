@@ -8,7 +8,7 @@
     <description>Jupyter notebook providing VTL support through Trevas engine</description>
     <artifactId>trevas-jupyter</artifactId>
     <groupId>fr.insee</groupId>
-    <version>0.1.6</version>
+    <version>0.1.7</version>
 
     <licenses>
         <license>
@@ -20,8 +20,15 @@
     <properties>
         <jdk.version>11</jdk.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <trevas.version>0.4.4</trevas.version>
+        <trevas.version>0.4.5</trevas.version>
     </properties>
+
+    <repositories>
+        <repository>
+            <id>ossrh</id>
+            <url>https://oss.sonatype.org/content/groups/public/</url>
+        </repository>
+    </repositories>
 
     <dependencies>
         <dependency>
@@ -36,11 +43,18 @@
         </dependency>
 
         <dependency>
+            <groupId>com.github.akovari</groupId>
+            <artifactId>antlr4-autocomplete</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+
+
+        <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
             <version>2.12.3</version>
         </dependency>
-        
+
         <dependency>
             <groupId>io.github.spencerpark</groupId>
             <artifactId>jupyter-jvm-basekernel</artifactId>
@@ -75,6 +89,20 @@
             <artifactId>gson</artifactId>
             <version>2.9.0</version>
         </dependency>
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>5.8.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <version>3.22.0</version>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
     <build>

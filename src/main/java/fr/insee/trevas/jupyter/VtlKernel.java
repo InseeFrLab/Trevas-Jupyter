@@ -2,6 +2,7 @@ package fr.insee.trevas.jupyter;
 
 import fr.insee.vtl.engine.VtlScriptEngine;
 import fr.insee.vtl.model.Dataset;
+import fr.insee.vtl.model.InMemoryDataset;
 import fr.insee.vtl.model.Structured;
 import fr.insee.vtl.spark.SparkDataset;
 import io.github.spencerpark.jupyter.channels.JupyterConnection;
@@ -9,9 +10,11 @@ import io.github.spencerpark.jupyter.channels.JupyterSocket;
 import io.github.spencerpark.jupyter.kernel.BaseKernel;
 import io.github.spencerpark.jupyter.kernel.KernelConnectionProperties;
 import io.github.spencerpark.jupyter.kernel.LanguageInfo;
+import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
 import io.github.spencerpark.jupyter.kernel.display.DisplayData;
 import org.apache.spark.sql.SparkSession;
 
+import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineFactory;
 import javax.script.ScriptEngineManager;
@@ -19,6 +22,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
@@ -29,6 +33,7 @@ public class VtlKernel extends BaseKernel {
     private static SparkSession spark;
     private final VtlScriptEngine engine;
     private final LanguageInfo info;
+    private final AutoCompleter autoCompleter;
 
     public VtlKernel() throws Exception {
         spark = buildSparkSession();
@@ -39,6 +44,7 @@ public class VtlKernel extends BaseKernel {
                 .version(factory.getEngineVersion())
                 .build();
         registerMethods();
+        this.autoCompleter = new AutoCompleter(this.engine.getBindings(ScriptContext.ENGINE_SCOPE));
     }
 
     public static SparkDataset loadS3(String path) throws Exception {
@@ -107,6 +113,18 @@ public class VtlKernel extends BaseKernel {
         });
         b.append("</tbody>");
         b.append("</table>");
+        b.append("<script\n" +
+                "  src=\"https://code.jquery.com/jquery-3.6.0.slim.min.js\"\n" +
+                "  integrity=\"sha256-u7e5khyithlIdTpu22PHhENmPcRdFiHRjhAuHcs05RI=\"\n" +
+                "  crossorigin=\"anonymous\"></script>");
+        b.append("<link rel=\"stylesheet\" type=\"text/css\" href=\"https://cdn.datatables.net/1.12.1/css/jquery.dataTables.css\">\n" +
+                "  \n" +
+                "<script type=\"text/javascript\" charset=\"utf8\" src=\"https://cdn.datatables.net/1.12.1/js/jquery.dataTables.js\"></script>\n");
+        b.append("<script type=\"text/javascript\">" +
+                "$(document).ready( function () {\n" +
+                "    $('#dataset_" + dataset.hashCode() + "').DataTable();\n" +
+                "} );" +
+                "</script>");
         displayData.putHTML(b.toString());
     }
 
@@ -170,6 +188,20 @@ public class VtlKernel extends BaseKernel {
         ScriptEngine engine = mgr.getEngineByExtension("vtl");
         engine.put("$vtl.engine.processing_engine_names", "spark");
         engine.put("$vtl.spark.session", spark);
+
+        engine.getBindings(ScriptContext.ENGINE_SCOPE).put("ds", new InMemoryDataset(
+                List.of(
+                        List.of("a", 1L, 2L),
+                        List.of("b", 3L, 4L),
+                        List.of("c", 5L, 6L),
+                        List.of("d", 7L, 8L)
+                ),
+                List.of(
+                        new Structured.Component("name", String.class, Dataset.Role.IDENTIFIER),
+                        new Structured.Component("age", Long.class, Dataset.Role.MEASURE),
+                        new Structured.Component("weight", Long.class, Dataset.Role.MEASURE)
+                )
+        ));
         return (VtlScriptEngine) engine;
     }
 
@@ -185,6 +217,11 @@ public class VtlKernel extends BaseKernel {
         displayData = new DisplayData();
         this.engine.eval(expr);
         return displayData;
+    }
+
+    @Override
+    public ReplacementOptions complete(String code, int at) {
+        return this.autoCompleter.complete(code, at);
     }
 
     @Override
