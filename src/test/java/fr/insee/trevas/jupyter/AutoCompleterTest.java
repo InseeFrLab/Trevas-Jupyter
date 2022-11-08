@@ -16,13 +16,6 @@ public class AutoCompleterTest {
     private SimpleBindings bindings;
     private AutoCompleter completer;
 
-    @BeforeEach
-    void setUp() {
-        setLevel(Level.ALL);
-        this.bindings = new SimpleBindings();
-        this.completer = new AutoCompleter(this.bindings);
-    }
-
     public static void setLevel(Level targetLevel) {
         Logger root = Logger.getLogger("");
         root.setLevel(targetLevel);
@@ -30,6 +23,13 @@ public class AutoCompleterTest {
             handler.setLevel(targetLevel);
         }
         System.out.println("level set: " + targetLevel.getName());
+    }
+
+    @BeforeEach
+    void setUp() {
+        setLevel(Level.ALL);
+        this.bindings = new SimpleBindings();
+        this.completer = new AutoCompleter(this.bindings);
     }
 
     public ReplacementOptions complete(String code, int at) {
@@ -50,6 +50,6 @@ public class AutoCompleterTest {
     public void testAssignement() {
         ReplacementOptions replacements = complete("foo := ", 6);
         assertThat(replacements.getReplacements())
-                .contains(":=", "<-");
+                .contains("full_join");
     }
 }
