@@ -51,10 +51,6 @@ public class VtlKernel extends BaseKernel {
         return Utils.readParquetDataset(spark, path);
     }
 
-    public static SparkDataset loadCSVFromHttp(String path) throws Exception {
-        return Utils.readCSVDatasetFromHttp(spark, path);
-    }
-
     private static Map<String, Dataset.Role> getRoleMap(Collection<Structured.Component> components) {
         return components.stream()
                 .collect(Collectors.toMap(
@@ -79,6 +75,11 @@ public class VtlKernel extends BaseKernel {
         // TODO: replace with SparkDataset constructor when available in Trevas
         Utils.writeParquetDataset(spark, path, asSparkDataset(ds));
         return "Dataset written: '" + path + "'";
+    }
+
+    public static String getSize(Dataset ds) {
+        SparkDataset sparkDataset = asSparkDataset(ds);
+        return "Dataset size: " + sparkDataset.getDataPoints().size();
     }
 
     public static Object show(Object o) {
@@ -180,7 +181,7 @@ public class VtlKernel extends BaseKernel {
         this.engine.registerMethod("writeS3", VtlKernel.class.getMethod("writeS3", String.class, Dataset.class));
         this.engine.registerMethod("show", VtlKernel.class.getMethod("show", Object.class));
         this.engine.registerMethod("showMetadata", VtlKernel.class.getMethod("showMetadata", Object.class));
-        this.engine.registerMethod("loadCSVFromHttp", VtlKernel.class.getMethod("loadCSVFromHttp", String.class));
+        this.engine.registerMethod("size", VtlKernel.class.getMethod("getSize", Dataset.class));
     }
 
     public VtlScriptEngine buildSparkEngine(SparkSession spark) throws Exception {
@@ -189,7 +190,7 @@ public class VtlKernel extends BaseKernel {
         engine.put("$vtl.engine.processing_engine_names", "spark");
         engine.put("$vtl.spark.session", spark);
 
-        engine.getBindings(ScriptContext.ENGINE_SCOPE).put("ds", new InMemoryDataset(
+        engine.getBindings(ScriptContext.ENGINE_SCOPE).put("test", new InMemoryDataset(
                 List.of(
                         List.of("a", 1L, 2L),
                         List.of("b", 3L, 4L),
