@@ -79,7 +79,7 @@ public class VtlKernel extends BaseKernel {
 
     public static String getSize(Dataset ds) {
         SparkDataset sparkDataset = asSparkDataset(ds);
-        return "Dataset size: '" + sparkDataset.getDataPoints().size();
+        return "Dataset size: " + sparkDataset.getDataPoints().size();
     }
 
     public static Object show(Object o) {
