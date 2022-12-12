@@ -207,9 +207,9 @@ public class VtlKernel extends BaseKernel {
     }
 
     private SparkSession buildSparkSession() {
-        SparkSession.Builder sparkBuilder = SparkSession.builder()
-                .appName("trevas-jupyter")
-                .master("local");
+        SparkSession.Builder sparkBuilder = SparkSession.builder();
+//                .appName("trevas-jupyter")
+//                .master("local");
         return sparkBuilder.getOrCreate();
     }
 
