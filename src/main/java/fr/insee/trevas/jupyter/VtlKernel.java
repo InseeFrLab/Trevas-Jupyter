@@ -12,6 +12,7 @@ import io.github.spencerpark.jupyter.kernel.KernelConnectionProperties;
 import io.github.spencerpark.jupyter.kernel.LanguageInfo;
 import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
 import io.github.spencerpark.jupyter.kernel.display.DisplayData;
+import org.apache.spark.SparkConf;
 import org.apache.spark.sql.SparkSession;
 
 import javax.script.ScriptContext;
@@ -210,7 +211,11 @@ public class VtlKernel extends BaseKernel {
         SparkSession.Builder sparkBuilder = SparkSession.builder();
 //                .appName("trevas-jupyter")
 //                .master("local");
-        return sparkBuilder.getOrCreate();
+        SparkConf conf = new SparkConf(true);
+        String spark_home = System.getenv("SPARK_HOME") + "/conf";
+        Path path = Path.of(spark_home, "spark-defaults.conf");
+        org.apache.spark.util.Utils.loadDefaultSparkProperties(conf, path.normalize().toAbsolutePath().toString());
+        return sparkBuilder.config(conf).getOrCreate();
     }
 
     @Override
