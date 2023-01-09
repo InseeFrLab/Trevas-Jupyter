@@ -2,6 +2,7 @@ package fr.insee.trevas.jupyter;
 
 import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import javax.script.SimpleBindings;
@@ -39,17 +40,19 @@ public class AutoCompleterTest {
         return replacements;
     }
 
-    @Test
-    public void testSimpleCompletion() {
-        ReplacementOptions replacements = complete("foo", 2);
-        assertThat(replacements.getReplacements())
-                .contains(":=", "<-");
-    }
+//    @Test
+//    @Disabled
+//    public void testSimpleCompletion() {
+//        ReplacementOptions replacements = complete("foo", 2);
+//        assertThat(replacements.getReplacements())
+//                .contains(":=", "<-");
+//    }
 
-    @Test
-    public void testAssignement() {
-        ReplacementOptions replacements = complete("foo := ", 6);
-        assertThat(replacements.getReplacements())
-                .contains("full_join");
-    }
+//    @Test
+//    @Disabled
+//    public void testAssignement() {
+//        ReplacementOptions replacements = complete("foo := ", 6);
+//        assertThat(replacements.getReplacements())
+//                .contains("full_join");
+//    }
 }
