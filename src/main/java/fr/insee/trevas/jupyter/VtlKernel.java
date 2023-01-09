@@ -219,8 +219,7 @@ public class VtlKernel extends BaseKernel {
                 "/vtl-spark.jar",
                 "/vtl-model.jar",
                 "/vtl-parser.jar",
-                "/vtl-engine.jar",
-                "/vtl-jackson.jar"
+                "/vtl-engine.jar"
         ));
         return sparkBuilder.config(conf).getOrCreate();
     }
