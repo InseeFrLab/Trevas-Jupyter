@@ -2,7 +2,6 @@ package fr.insee.trevas.jupyter;
 
 import fr.insee.vtl.engine.VtlScriptEngine;
 import fr.insee.vtl.model.Dataset;
-import fr.insee.vtl.model.InMemoryDataset;
 import fr.insee.vtl.model.Structured;
 import fr.insee.vtl.spark.SparkDataset;
 import io.github.spencerpark.jupyter.channels.JupyterConnection;
@@ -23,7 +22,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
@@ -191,7 +189,7 @@ public class VtlKernel extends BaseKernel {
         engine.put("$vtl.engine.processing_engine_names", "spark");
         engine.put("$vtl.spark.session", spark);
 
-        engine.getBindings(ScriptContext.ENGINE_SCOPE).put("test", new InMemoryDataset(
+        /*engine.getBindings(ScriptContext.ENGINE_SCOPE).put("test", new InMemoryDataset(
                 List.of(
                         List.of("a", 1L, 2L),
                         List.of("b", 3L, 4L),
@@ -203,7 +201,7 @@ public class VtlKernel extends BaseKernel {
                         new Structured.Component("age", Long.class, Dataset.Role.MEASURE),
                         new Structured.Component("weight", Long.class, Dataset.Role.MEASURE)
                 )
-        ));
+        ));*/
         return (VtlScriptEngine) engine;
     }
 
