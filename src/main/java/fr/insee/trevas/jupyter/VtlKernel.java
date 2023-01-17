@@ -221,8 +221,8 @@ public class VtlKernel extends BaseKernel {
                 "/vtl-parser.jar",
                 "/vtl-engine.jar"
         ));
-        conf.set("spark.kubernetes.container.image","inseefrlab/spark-hadoop:trevas-0.4.8-spark-3.2.1-hadoop-3.3.1-postgresql-42.3.3-postgis-2021.1.0");
-        conf.set("spark.kubernetes.container.pullPolicy","IfNotPresent");
+//        conf.set("spark.kubernetes.container.image","inseefrlab/spark-hadoop:trevas-0.4.8-spark-3.2.1-hadoop-3.3.1-postgresql-42.3.3-postgis-2021.1.0");
+//        conf.set("spark.kubernetes.container.pullPolicy","IfNotPresent");
         return sparkBuilder.config(conf).getOrCreate();
     }
 
