@@ -11,13 +11,10 @@ import io.github.spencerpark.jupyter.kernel.KernelConnectionProperties;
 import io.github.spencerpark.jupyter.kernel.LanguageInfo;
 import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
 import io.github.spencerpark.jupyter.kernel.display.DisplayData;
-import org.apache.spark.SparkConf;
 import org.apache.spark.sql.SparkSession;
 
 import javax.script.ScriptContext;
-import javax.script.ScriptEngine;
 import javax.script.ScriptEngineFactory;
-import javax.script.ScriptEngineManager;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -35,8 +32,8 @@ public class VtlKernel extends BaseKernel {
     private final AutoCompleter autoCompleter;
 
     public VtlKernel() throws Exception {
-        spark = buildSparkSession();
-        this.engine = buildSparkEngine(spark);
+        spark = SparkUtils.buildSparkSession();
+        this.engine = SparkUtils.buildSparkEngine(spark);
         System.out.println("Loaded VTL engine " + engine.getFactory().getEngineVersion());
         ScriptEngineFactory factory = engine.getFactory();
         this.info = new LanguageInfo.Builder(factory.getEngineName())
@@ -44,10 +41,6 @@ public class VtlKernel extends BaseKernel {
                 .build();
         registerMethods();
         this.autoCompleter = new AutoCompleter(this.engine.getBindings(ScriptContext.ENGINE_SCOPE));
-    }
-
-    public static SparkDataset loadS3(String path) throws Exception {
-        return Utils.readParquetDataset(spark, path);
     }
 
     private static Map<String, Dataset.Role> getRoleMap(Collection<Structured.Component> components) {
@@ -70,9 +63,21 @@ public class VtlKernel extends BaseKernel {
         }
     }
 
-    public static String writeS3(String path, Dataset ds) {
-        // TODO: replace with SparkDataset constructor when available in Trevas
-        Utils.writeParquetDataset(spark, path, asSparkDataset(ds));
+    public static SparkDataset loadParquet(String path) throws Exception {
+        return SparkUtils.readParquetDataset(spark, path);
+    }
+
+    public static SparkDataset loadCSV(String path) throws Exception {
+        return SparkUtils.readCSVDataset(spark, path);
+    }
+
+    public static String writeParquet(String path, Dataset ds) {
+        SparkUtils.writeParquetDataset(path, asSparkDataset(ds));
+        return "Dataset written: '" + path + "'";
+    }
+
+    public static String writeCSV(String path, Dataset ds) {
+        SparkUtils.writeCSVDataset(path, asSparkDataset(ds));
         return "Dataset written: '" + path + "'";
     }
 
@@ -176,52 +181,13 @@ public class VtlKernel extends BaseKernel {
     }
 
     private void registerMethods() throws NoSuchMethodException {
-        this.engine.registerMethod("loadS3", VtlKernel.class.getMethod("loadS3", String.class));
-        this.engine.registerMethod("writeS3", VtlKernel.class.getMethod("writeS3", String.class, Dataset.class));
+        this.engine.registerMethod("loadParquet", VtlKernel.class.getMethod("loadParquet", String.class));
+        this.engine.registerMethod("loadCSV", VtlKernel.class.getMethod("loadCSV", String.class));
+        this.engine.registerMethod("writeParquet", VtlKernel.class.getMethod("writeParquet", String.class, Dataset.class));
+        this.engine.registerMethod("writeCSV", VtlKernel.class.getMethod("writeCSV", String.class, Dataset.class));
         this.engine.registerMethod("show", VtlKernel.class.getMethod("show", Object.class));
         this.engine.registerMethod("showMetadata", VtlKernel.class.getMethod("showMetadata", Object.class));
         this.engine.registerMethod("size", VtlKernel.class.getMethod("getSize", Dataset.class));
-    }
-
-    public VtlScriptEngine buildSparkEngine(SparkSession spark) throws Exception {
-        ScriptEngineManager mgr = new ScriptEngineManager();
-        ScriptEngine engine = mgr.getEngineByExtension("vtl");
-        engine.put("$vtl.engine.processing_engine_names", "spark");
-        engine.put("$vtl.spark.session", spark);
-
-        /*engine.getBindings(ScriptContext.ENGINE_SCOPE).put("test", new InMemoryDataset(
-                List.of(
-                        List.of("a", 1L, 2L),
-                        List.of("b", 3L, 4L),
-                        List.of("c", 5L, 6L),
-                        List.of("d", 7L, 8L)
-                ),
-                List.of(
-                        new Structured.Component("name", String.class, Dataset.Role.IDENTIFIER),
-                        new Structured.Component("age", Long.class, Dataset.Role.MEASURE),
-                        new Structured.Component("weight", Long.class, Dataset.Role.MEASURE)
-                )
-        ));*/
-        return (VtlScriptEngine) engine;
-    }
-
-    private SparkSession buildSparkSession() {
-        SparkSession.Builder sparkBuilder = SparkSession.builder();
-//                .appName("trevas-jupyter")
-//                .master("local");
-        SparkConf conf = new SparkConf(true);
-        String spark_home = System.getenv("SPARK_HOME") + "/conf";
-        Path path = Path.of(spark_home, "spark-defaults.conf");
-        org.apache.spark.util.Utils.loadDefaultSparkProperties(conf, path.normalize().toAbsolutePath().toString());
-        conf.set("spark.jars", String.join(",",
-                "/vtl-spark.jar",
-                "/vtl-model.jar",
-                "/vtl-parser.jar",
-                "/vtl-engine.jar"
-        ));
-        conf.set("spark.kubernetes.container.image","inseefrlab/spark-hadoop:trevas-0.4.8-spark-3.2.1-hadoop-3.3.1-postgresql-42.3.3-postgis-2021.1.0");
-        conf.set("spark.kubernetes.container.pullPolicy","IfNotPresent");
-        return sparkBuilder.config(conf).getOrCreate();
     }
 
     @Override
