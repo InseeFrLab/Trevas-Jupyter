@@ -41,12 +41,6 @@ public class SparkUtils {
         return sparkBuilder.config(conf).getOrCreate();
     }
 
-    public static SparkSession buildLocalSparkSession() {
-        SparkSession.Builder sparkBuilder = SparkSession.builder()
-                .master("local");
-        return sparkBuilder.getOrCreate();
-    }
-
     public static SparkDataset readParquetDataset(SparkSession spark, String path) throws Exception {
         Dataset<Row> dataset;
         try {
