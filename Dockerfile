@@ -4,6 +4,7 @@ FROM inseefrlab/onyxia-jupyter-pyspark:latest
 ENV CLASSPATH_PREFIX "/opt/hadoop/etc/hadoop:/opt/spark/conf"
 
 COPY target/appassembler/ /usr/local/share/jupyter/kernels/trevas/
+COPY target/appassembler/ /usr/local/share/jupyter/kernels/trevas-local/
 COPY kernel.json /usr/local/share/jupyter/kernels/trevas/
 COPY kernel-local.json /usr/local/share/jupyter/kernels/trevas-local/
 
