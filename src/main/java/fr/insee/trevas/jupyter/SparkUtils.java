@@ -33,7 +33,8 @@ public class SparkUtils {
                 "/vtl-spark.jar",
                 "/vtl-model.jar",
                 "/vtl-parser.jar",
-                "/vtl-engine.jar"
+                "/vtl-engine.jar",
+                "/hadoop-aws.jar"
         ));
         conf.set("spark.kubernetes.container.image", "inseefrlab/spark-hadoop:trevas-0.4.8-spark-3.2.1-hadoop-3.3.1-postgresql-42.3.3-postgis-2021.1.0");
         conf.set("spark.kubernetes.container.pullPolicy", "IfNotPresent");
