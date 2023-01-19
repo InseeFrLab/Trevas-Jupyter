@@ -1,0 +1,8 @@
+{
+  "argv": [
+    "/usr/local/share/jupyter/kernels/trevas/bin/trevas",
+    "{connection_file}"
+  ],
+  "display_name": "Trevas VTL - Local",
+  "language": "vtl"
+}

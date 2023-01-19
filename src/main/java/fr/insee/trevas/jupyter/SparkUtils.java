@@ -14,7 +14,7 @@ import java.nio.file.Path;
 
 public class SparkUtils {
 
-    public static VtlScriptEngine buildSparkEngine(SparkSession spark) throws Exception {
+    public static VtlScriptEngine buildSparkEngine(SparkSession spark) {
         ScriptEngineManager mgr = new ScriptEngineManager();
         ScriptEngine engine = mgr.getEngineByExtension("vtl");
         engine.put("$vtl.engine.processing_engine_names", "spark");
@@ -38,6 +38,12 @@ public class SparkUtils {
         conf.set("spark.kubernetes.container.image", "inseefrlab/spark-hadoop:trevas-0.4.8-spark-3.2.1-hadoop-3.3.1-postgresql-42.3.3-postgis-2021.1.0");
         conf.set("spark.kubernetes.container.pullPolicy", "IfNotPresent");
         return sparkBuilder.config(conf).getOrCreate();
+    }
+
+    public static SparkSession buildLocalSparkSession() {
+        SparkSession.Builder sparkBuilder = SparkSession.builder()
+                .master("local");
+        return sparkBuilder.getOrCreate();
     }
 
     public static SparkDataset readParquetDataset(SparkSession spark, String path) throws Exception {
