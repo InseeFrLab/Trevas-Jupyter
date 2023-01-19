@@ -4,15 +4,12 @@ FROM inseefrlab/onyxia-jupyter-pyspark:latest
 ENV CLASSPATH_PREFIX "/opt/hadoop/etc/hadoop:/opt/spark/conf"
 
 COPY target/appassembler/ /usr/local/share/jupyter/kernels/trevas/
-COPY target/appassembler/ /usr/local/share/jupyter/kernels/trevas-local/
 COPY kernel.json /usr/local/share/jupyter/kernels/trevas/
-COPY kernel-local.json /usr/local/share/jupyter/kernels/trevas-local/
 
 COPY target/appassembler/repo/fr/insee/trevas/vtl-spark/*/vtl-spark-*.jar /vtl-spark.jar
 COPY target/appassembler/repo/fr/insee/trevas/vtl-model/*/vtl-model-*.jar /vtl-model.jar
 COPY target/appassembler/repo/fr/insee/trevas/vtl-engine/*/vtl-engine-*.jar /vtl-engine.jar
 COPY target/appassembler/repo/fr/insee/trevas/vtl-parser/*/vtl-parser-*.jar /vtl-parser.jar
-COPY target/appassembler/repo/org/apache/hadoop/hadoop-aws/*/hadoop-aws-*.jar /hadoop-aws.jar
 
 RUN mamba install -y -c conda-forge "elyra-pipeline-editor-extension"
 

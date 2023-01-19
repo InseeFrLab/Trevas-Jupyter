@@ -33,19 +33,12 @@ public class SparkUtils {
                 "/vtl-spark.jar",
                 "/vtl-model.jar",
                 "/vtl-parser.jar",
-                "/vtl-engine.jar",
-                "/hadoop-aws.jar"
+                "/vtl-engine.jar"
         ));
         conf.set("spark.kubernetes.container.image", "inseefrlab/spark-hadoop:trevas-0.4.8-spark-3.2.1-hadoop-3.3.1-postgresql-42.3.3-postgis-2021.1.0");
         conf.set("spark.kubernetes.container.pullPolicy", "IfNotPresent");
         conf.set("spark.hadoop.fs.s3a.bucket.all.committer.magic.enabled", "false");
         return sparkBuilder.config(conf).getOrCreate();
-    }
-
-    public static SparkSession buildLocalSparkSession() {
-        SparkSession.Builder sparkBuilder = SparkSession.builder()
-                .master("local");
-        return sparkBuilder.getOrCreate();
     }
 
     public static SparkDataset readParquetDataset(SparkSession spark, String path) throws Exception {
