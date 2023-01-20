@@ -82,11 +82,11 @@
             <artifactId>hadoop-client</artifactId>
             <version>3.3.4</version>
         </dependency>
-        <dependency>
-            <groupId>org.apache.spark</groupId>
-            <artifactId>spark-hadoop-cloud_2.13</artifactId>
-            <version>3.3.1</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>org.apache.spark</groupId>-->
+<!--            <artifactId>spark-hadoop-cloud_2.13</artifactId>-->
+<!--            <version>3.3.1</version>-->
+<!--        </dependency>-->
 
 
         <dependency>
