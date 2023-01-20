@@ -34,7 +34,7 @@ public class VtlKernel extends BaseKernel {
     public VtlKernel() throws Exception {
         spark = SparkUtils.buildSparkSession();
         this.engine = SparkUtils.buildSparkEngine(spark);
-        System.out.println("Loaded VTL engine " + engine.getFactory().getEngineVersion());
+        System.out.println("Loaded VTL engine " + engine.getFactory().getEngineName());
         ScriptEngineFactory factory = engine.getFactory();
         this.info = new LanguageInfo.Builder(factory.getEngineName())
                 .version(factory.getEngineVersion())
