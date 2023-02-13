@@ -31,7 +31,7 @@ public class SparkUtils {
         if (Files.exists(path)) {
             org.apache.spark.util.Utils.loadDefaultSparkProperties(conf, path.normalize().toAbsolutePath().toString());
         } else {
-            conf.set("master", "local");
+            conf.set("spark.master", "local");
         }
         conf.set("spark.jars", String.join(",",
                 "/vtl-spark.jar",
