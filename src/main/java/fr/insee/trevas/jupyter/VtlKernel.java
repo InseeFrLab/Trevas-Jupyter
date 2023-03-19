@@ -71,6 +71,10 @@ public class VtlKernel extends BaseKernel {
         return SparkUtils.readCSVDataset(spark, path);
     }
 
+    public static SparkDataset loadSas(String path) throws Exception {
+        return SparkUtils.readSasDataset(spark, path);
+    }
+
     public static String writeParquet(String path, Dataset ds) {
         SparkUtils.writeParquetDataset(path, asSparkDataset(ds));
         return "Dataset written: '" + path + "'";
@@ -183,6 +187,7 @@ public class VtlKernel extends BaseKernel {
     private void registerMethods() throws NoSuchMethodException {
         this.engine.registerMethod("loadParquet", VtlKernel.class.getMethod("loadParquet", String.class));
         this.engine.registerMethod("loadCSV", VtlKernel.class.getMethod("loadCSV", String.class));
+        this.engine.registerMethod("loadSas", VtlKernel.class.getMethod("loadSas", String.class));
         this.engine.registerMethod("writeParquet", VtlKernel.class.getMethod("writeParquet", String.class, Dataset.class));
         this.engine.registerMethod("writeCSV", VtlKernel.class.getMethod("writeCSV", String.class, Dataset.class));
         this.engine.registerMethod("show", VtlKernel.class.getMethod("show", Object.class));
