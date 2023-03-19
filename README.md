@@ -13,6 +13,7 @@ Custom functions have been introduced into the Trevas engine.
 | ------------ | ------------------------ | ------------------------------------ |
 | loadParquet  | String url               | Load Parquet dataset                 |
 | loadCSV      | String url               | Load CSV dataset                     |
+| loadSas      | String url               | Load Sas dataset                     |
 | writeParquet | (String url, Dataset ds) | Write given dataset in Parquet       |
 | writeCSV     | (String url, Dataset ds) | Write given dataset in CSV           |
 | show         | Dataset ds               | Display firt rows of a given dataset |

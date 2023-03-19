@@ -53,6 +53,19 @@ public class SparkUtils {
         return new SparkDataset(dataset);
     }
 
+    public static SparkDataset readSasDataset(SparkSession spark, String path) throws Exception {
+        Dataset<Row> dataset;
+        try {
+            dataset = spark.read()
+                    .format("com.github.saurfang.sas.spark")
+                    .load(path);
+        } catch (Exception e) {
+            throw new Exception(e);
+
+        }
+        return new SparkDataset(dataset);
+    }
+
     public static SparkDataset readCSVDataset(SparkSession spark, String path) throws Exception {
         Dataset<Row> dataset;
         try {

@@ -19,6 +19,15 @@ jobs:
           java-version: 11
       - name: Set current version
         run: mvn -B versions:set -DnewVersion=${GITHUB_REF##*/} -DprocessAllModules -DgenerateBackupPoms=false
+      - uses: s4u/maven-settings-action@v2.8.0
+        with:
+          githubServer: false
+          servers: |
+            [{
+                "id": "Github",
+                "username": "${{ secrets.GH_PACKAGES_USERNAME }}",
+                "password": "${{ secrets.GH_PACKAGES_PASSWORD }}"
+            }]
       - name: Build with Maven
         run: mvn -B clean package -DskipTests
       - run: ls
