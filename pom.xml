@@ -8,7 +8,7 @@
     <description>Jupyter notebook providing VTL support through Trevas engine</description>
     <artifactId>trevas-jupyter</artifactId>
     <groupId>fr.insee</groupId>
-    <version>0.1.12</version>
+    <version>0.2.0</version>
 
     <licenses>
         <license>
@@ -20,7 +20,7 @@
     <properties>
         <jdk.version>11</jdk.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <trevas.version>0.4.8</trevas.version>
+        <trevas.version>0.5.0-SNAPSHOT</trevas.version>
     </properties>
 
     <repositories>
@@ -28,9 +28,31 @@
             <id>ossrh</id>
             <url>https://oss.sonatype.org/content/groups/public/</url>
         </repository>
+        <repository>
+            <id>SparkPackagesRepo</id>
+            <url>https://repos.spark-packages.org/</url>
+        </repository>
+        <repository>
+            <id>Github</id>
+            <url>https://maven.pkg.github.com/InseeFr/Trevas</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
     </repositories>
 
     <dependencies>
+        <dependency>
+            <groupId>saurfang</groupId>
+            <artifactId>spark-sas7bdat</artifactId>
+            <version>3.0.0-s_2.12</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
         <dependency>
             <groupId>fr.insee.trevas</groupId>
             <artifactId>vtl-engine</artifactId>
