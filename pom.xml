@@ -46,6 +46,12 @@
             <groupId>saurfang</groupId>
             <artifactId>spark-sas7bdat</artifactId>
             <version>3.0.0-s_2.12</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.slf4j</groupId>
+                    <artifactId>slf4j-api</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>fr.insee.trevas</groupId>
