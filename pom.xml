@@ -8,7 +8,7 @@
     <description>Jupyter notebook providing VTL support through Trevas engine</description>
     <artifactId>trevas-jupyter</artifactId>
     <groupId>fr.insee</groupId>
-    <version>0.2.0</version>
+    <version>0.3.0</version>
 
     <licenses>
         <license>
@@ -20,7 +20,7 @@
     <properties>
         <jdk.version>11</jdk.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <trevas.version>0.5.0-SNAPSHOT</trevas.version>
+        <trevas.version>1.0.0</trevas.version>
     </properties>
 
     <repositories>
@@ -105,12 +105,12 @@
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-aws</artifactId>
-            <version>3.3.1</version>
+            <version>3.3.4</version>
         </dependency>
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-client</artifactId>
-            <version>3.3.1</version>
+            <version>3.3.4</version>
         </dependency>
 
         <dependency>
