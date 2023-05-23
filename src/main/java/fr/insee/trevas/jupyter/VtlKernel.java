@@ -39,7 +39,7 @@ public class VtlKernel extends BaseKernel {
         this.info = new LanguageInfo.Builder(factory.getEngineName())
                 .version(factory.getEngineVersion())
                 .build();
-        registerMethods();
+        registerGlobalMethods();
         this.autoCompleter = new AutoCompleter(this.engine.getBindings(ScriptContext.ENGINE_SCOPE));
     }
 
@@ -184,15 +184,15 @@ public class VtlKernel extends BaseKernel {
         connection.waitUntilClose();
     }
 
-    private void registerMethods() throws NoSuchMethodException {
-        this.engine.registerMethod("loadParquet", VtlKernel.class.getMethod("loadParquet", String.class));
-        this.engine.registerMethod("loadCSV", VtlKernel.class.getMethod("loadCSV", String.class));
-        this.engine.registerMethod("loadSas", VtlKernel.class.getMethod("loadSas", String.class));
-        this.engine.registerMethod("writeParquet", VtlKernel.class.getMethod("writeParquet", String.class, Dataset.class));
-        this.engine.registerMethod("writeCSV", VtlKernel.class.getMethod("writeCSV", String.class, Dataset.class));
-        this.engine.registerMethod("show", VtlKernel.class.getMethod("show", Object.class));
-        this.engine.registerMethod("showMetadata", VtlKernel.class.getMethod("showMetadata", Object.class));
-        this.engine.registerMethod("size", VtlKernel.class.getMethod("getSize", Dataset.class));
+    private void registerGlobalMethods() throws NoSuchMethodException {
+        this.engine.registerGlobalMethod("loadParquet", VtlKernel.class.getMethod("loadParquet", String.class));
+        this.engine.registerGlobalMethod("loadCSV", VtlKernel.class.getMethod("loadCSV", String.class));
+        this.engine.registerGlobalMethod("loadSas", VtlKernel.class.getMethod("loadSas", String.class));
+        this.engine.registerGlobalMethod("writeParquet", VtlKernel.class.getMethod("writeParquet", String.class, Dataset.class));
+        this.engine.registerGlobalMethod("writeCSV", VtlKernel.class.getMethod("writeCSV", String.class, Dataset.class));
+        this.engine.registerGlobalMethod("show", VtlKernel.class.getMethod("show", Object.class));
+        this.engine.registerGlobalMethod("showMetadata", VtlKernel.class.getMethod("showMetadata", Object.class));
+        this.engine.registerGlobalMethod("size", VtlKernel.class.getMethod("getSize", Dataset.class));
     }
 
     @Override
