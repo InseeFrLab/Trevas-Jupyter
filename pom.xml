@@ -33,16 +33,9 @@
             <url>https://repos.spark-packages.org/</url>
         </repository>
         <repository>
-            <id>Github</id>
-            <url>https://maven.pkg.github.com/InseeFr/Trevas</url>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
+            <id>vendor</id>
+            <url>file://${project.basedir}/vendor</url>
         </repository>
-            <repository>
-                <id>vendor</id>
-                <url>file://${project.basedir}/vendor</url>
-            </repository>
     </repositories>
 
     <dependencies>
