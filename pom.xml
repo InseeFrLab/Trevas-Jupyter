@@ -39,6 +39,10 @@
                 <enabled>true</enabled>
             </snapshots>
         </repository>
+            <repository>
+                <id>vendor</id>
+                <url>file://${project.basedir}/vendor</url>
+            </repository>
     </repositories>
 
     <dependencies>
@@ -119,8 +123,6 @@
             <groupId>com.intigua</groupId>
             <artifactId>antlr4-autosuggest</artifactId>
             <version>0.0.1-SNAPSHOT</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/src/main/resources/antlr4-autosuggest-0.0.1-SNAPSHOT.jar</systemPath>
         </dependency>
 
         <dependency>
