@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata>
+  <groupId>com.intigua</groupId>
+  <artifactId>antlr4-autosuggest</artifactId>
+  <versioning>
+    <versions>
+      <version>0.0.1-SNAPSHOT</version>
+    </versions>
+    <lastUpdated>20230811090753</lastUpdated>
+  </versioning>
+</metadata>
