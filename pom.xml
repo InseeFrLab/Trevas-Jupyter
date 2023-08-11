@@ -87,12 +87,6 @@
         </dependency>
 
         <dependency>
-            <groupId>com.github.akovari</groupId>
-            <artifactId>antlr4-autocomplete</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
-
-        <dependency>
             <groupId>io.github.spencerpark</groupId>
             <artifactId>jupyter-jvm-basekernel</artifactId>
             <version>2.3.0</version>
