@@ -23,7 +23,9 @@ public class OranoranCompleter implements AutoCompleter {
 
     @Override
     public ReplacementOptions complete(String code, int at) {
-        Collection<String> suggestions = new AutoSuggester(lexerAndParserFactory, code).suggestCompletions();
+        Collection<String> suggestions =
+                new AutoSuggester(lexerAndParserFactory, code.substring(0, at))
+                        .suggestCompletions();
         return new ReplacementOptions(new ArrayList<>(suggestions), at, at);
     }
 }

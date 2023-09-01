@@ -29,11 +29,11 @@ public class AutoCompleterTest {
         AutoCompleter completer = new OranoranCompleter(new SimpleBindings());
         for (int i = 0; i < 10; i++) {
             Instant start = Instant.now();
-            ReplacementOptions replacements = completer.complete("foo := ", 6);
+            ReplacementOptions replacements = completer.complete("foo := union(a,b", 16);
             Instant end = Instant.now();
             Duration time = Duration.between(start, end);
             System.out.println(time);
-            assertThat(replacements.getReplacements()).contains("full_join");
+            assertThat(replacements.getReplacements()).contains(")");
         }
     }
 }
