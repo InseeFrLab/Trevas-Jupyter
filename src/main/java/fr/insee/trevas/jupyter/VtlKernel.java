@@ -40,7 +40,7 @@ public class VtlKernel extends BaseKernel {
                 .version(factory.getEngineVersion())
                 .build();
         registerGlobalMethods();
-        this.autoCompleter = new OranoranCompleter(this.engine.getBindings(ScriptContext.ENGINE_SCOPE));
+        this.autoCompleter = new OranoranCompleter();
     }
 
     private static Map<String, Dataset.Role> getRoleMap(Collection<Structured.Component> components) {
