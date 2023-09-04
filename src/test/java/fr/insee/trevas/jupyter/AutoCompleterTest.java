@@ -13,7 +13,7 @@ public class AutoCompleterTest {
 
     @Test
     public void testSimpleCompletion() {
-        AutoCompleter completer = new OranoranCompleter(new SimpleBindings());
+        AutoCompleter completer = new OranoranCompleter();
         for (int i = 0; i < 10; i++) {
             Instant start = Instant.now();
             ReplacementOptions replacements = completer.complete("foo", 2);
@@ -26,7 +26,7 @@ public class AutoCompleterTest {
 
     @Test
     public void testAssignment() {
-        AutoCompleter completer = new OranoranCompleter(new SimpleBindings());
+        AutoCompleter completer = new OranoranCompleter();
         for (int i = 0; i < 10; i++) {
             Instant start = Instant.now();
             ReplacementOptions replacements = completer.complete("foo := union(a,b", 16);

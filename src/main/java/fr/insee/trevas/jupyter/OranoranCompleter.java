@@ -18,7 +18,7 @@ public class OranoranCompleter implements AutoCompleter {
                     VtlLexer.class, VtlParser.class
             );
 
-    public OranoranCompleter(Bindings bindings) {
+    public OranoranCompleter() {
     }
 
     @Override
