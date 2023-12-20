@@ -33,7 +33,7 @@ jobs:
       - run: ls
       - name: Docker meta
         id: docker_meta
-        uses: crazy-max/ghaction-docker-meta@v1.8.4
+        uses: crazy-max/ghaction-docker-meta@v1.12.0
         with:
           images: inseefrlab/trevas-jupyter # list of Docker images to use as base name for tags
       - name: Set up QEMU
