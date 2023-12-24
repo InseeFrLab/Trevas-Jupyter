@@ -11,6 +11,6 @@ COPY target/appassembler/repo/fr/insee/trevas/vtl-model/*/vtl-model-*.jar /vtl-m
 COPY target/appassembler/repo/fr/insee/trevas/vtl-engine/*/vtl-engine-*.jar /vtl-engine.jar
 COPY target/appassembler/repo/fr/insee/trevas/vtl-parser/*/vtl-parser-*.jar /vtl-parser.jar
 
-RUN mamba install -y -c conda-forge "elyra[all]"
+RUN conda install -c conda-forge elyra-pipeline-editor-extension
 
 CMD ["jupyter", "lab", "--no-browser", "--ip", "0.0.0.0"]
