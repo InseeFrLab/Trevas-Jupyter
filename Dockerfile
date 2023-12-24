@@ -1,4 +1,4 @@
-FROM inseefrlab/onyxia-jupyter-pyspark:py3.10.9-spark3.3.1
+FROM inseefrlab/onyxia-jupyter-pyspark:py3.11.6-spark3.5.0
 
 # Allows the kernel to load the Spark and Hadoop config.
 ENV CLASSPATH_PREFIX "/opt/hadoop/etc/hadoop:/opt/spark/conf"
