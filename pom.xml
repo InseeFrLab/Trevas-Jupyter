@@ -8,7 +8,7 @@
     <description>Jupyter notebook providing VTL support through Trevas engine</description>
     <artifactId>trevas-jupyter</artifactId>
     <groupId>fr.insee</groupId>
-    <version>0.4.2</version>
+    <version>0.5.0</version>
 
     <licenses>
         <license>
@@ -18,9 +18,9 @@
     </licenses>
 
     <properties>
-        <jdk.version>11</jdk.version>
+        <java.version>17</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <trevas.version>1.1.1</trevas.version>
+        <trevas.version>1.2.0</trevas.version>
     </properties>
 
     <repositories>
@@ -98,7 +98,7 @@
         <dependency>
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-kubernetes_2.12</artifactId>
-            <version>3.3.1</version>
+            <version>3.5.0</version>
         </dependency>
 
         <dependency>
@@ -182,12 +182,12 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.10.1</version>
+                <version>3.12.0</version>
                 <configuration>
-                    <release>${jdk.version}</release>
-                    <testRelease>${jdk.version}</testRelease>
-                    <target>${jdk.version}</target>
-                    <source>${jdk.version}</source>
+                    <release>${java.version}</release>
+                    <testRelease>${java.version}</testRelease>
+                    <target>${java.version}</target>
+                    <source>${java.version}</source>
                 </configuration>
             </plugin>
         </plugins>
