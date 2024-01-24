@@ -2,6 +2,7 @@ package fr.insee.trevas.jupyter;
 
 import fr.insee.vtl.engine.VtlScriptEngine;
 import fr.insee.vtl.model.Dataset;
+import fr.insee.vtl.model.PersistentDataset;
 import fr.insee.vtl.model.Structured;
 import fr.insee.vtl.spark.SparkDataset;
 import io.github.spencerpark.jupyter.channels.JupyterConnection;
@@ -58,9 +59,16 @@ public class VtlKernel extends BaseKernel {
     private static SparkDataset asSparkDataset(Dataset dataset) {
         if (dataset instanceof SparkDataset) {
             return (SparkDataset) dataset;
-        } else {
-            return new SparkDataset(dataset, getRoleMap(dataset), spark);
         }
+        if (dataset instanceof PersistentDataset) {
+            fr.insee.vtl.model.Dataset ds = ((PersistentDataset) dataset).getDelegate();
+            if (ds instanceof SparkDataset) {
+                return (SparkDataset) ds;
+            } else {
+                return new SparkDataset(ds, getRoleMap(dataset), spark);
+            }
+        }
+        throw new IllegalArgumentException("Unknow dataset type");
     }
 
     public static SparkDataset loadParquet(String path) throws Exception {
