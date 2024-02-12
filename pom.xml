@@ -175,6 +175,7 @@
                         </manifest>
                         <manifestEntries>
                             <Automatic-Module-Name>fr.insee.trevas.jupyter</Automatic-Module-Name>
+                            <Add-Opens>java.base/sun.nio.ch</Add-Opens>
                         </manifestEntries>
                     </archive>
                 </configuration>
@@ -182,7 +183,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.12.0</version>
+                <version>3.12.1</version>
                 <configuration>
                     <release>${java.version}</release>
                     <testRelease>${java.version}</testRelease>
