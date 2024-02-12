@@ -153,6 +153,7 @@
                     </execution>
                 </executions>
                 <configuration>
+                    <extraJvmArguments>--add-opens=java.base/sun.nio.ch=ALL-UNNAMED</extraJvmArguments>
                     <programs>
                         <program>
                             <mainClass>fr.insee.trevas.jupyter.VtlKernel</mainClass>
@@ -175,7 +176,6 @@
                         </manifest>
                         <manifestEntries>
                             <Automatic-Module-Name>fr.insee.trevas.jupyter</Automatic-Module-Name>
-                            <Add-Opens>java.base/sun.nio.ch</Add-Opens>
                         </manifestEntries>
                     </archive>
                 </configuration>
