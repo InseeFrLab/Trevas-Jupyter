@@ -1,4 +1,4 @@
-FROM inseefrlab/onyxia-jupyter-pyspark:py3.10.9-spark3.3.1
+FROM --platform=linux/amd64 inseefrlab/onyxia-jupyter-pyspark:py3.11.6-spark3.5.0
 
 # Allows the kernel to load the Spark and Hadoop config.
 ENV CLASSPATH_PREFIX "/opt/hadoop/etc/hadoop:/opt/spark/conf"
@@ -11,6 +11,10 @@ COPY target/appassembler/repo/fr/insee/trevas/vtl-model/*/vtl-model-*.jar /vtl-m
 COPY target/appassembler/repo/fr/insee/trevas/vtl-engine/*/vtl-engine-*.jar /vtl-engine.jar
 COPY target/appassembler/repo/fr/insee/trevas/vtl-parser/*/vtl-parser-*.jar /vtl-parser.jar
 
-RUN mamba install -y -c conda-forge "elyra[all]"
+USER root
+
+RUN pip3 install --upgrade elyra-pipeline-editor-extension
+
+USER 1000
 
 CMD ["jupyter", "lab", "--no-browser", "--ip", "0.0.0.0"]
