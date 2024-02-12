@@ -28,15 +28,18 @@ public class SparkUtils {
         SparkConf conf = new SparkConf(true);
         String spark_home = System.getenv("SPARK_HOME") + "/conf";
         Path path = Path.of(spark_home, "spark-defaults.conf");
-        if (Files.exists(path)) {
+          if (Files.exists(path)) {
+            org.apache.spark.util.Utils.loadDefaultSparkProperties(conf, path.normalize().toAbsolutePath().toString());
+             if (conf.get("spark.jars","").equals("")) {
              conf.set("spark.jars", String.join(",",
                     "/vtl-spark.jar",
                     "/vtl-model.jar",
                     "/vtl-parser.jar",
                     "/vtl-engine.jar"
             ));
-            org.apache.spark.util.Utils.loadDefaultSparkProperties(conf, path.normalize().toAbsolutePath().toString());
-        } else {
+         }
+        }
+        else {
             sparkBuilder.master("local");
         }
         return sparkBuilder.config(conf).getOrCreate();
