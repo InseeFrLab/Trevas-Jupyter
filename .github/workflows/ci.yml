@@ -9,7 +9,13 @@ on:
   pull_request:
 
 jobs:
+  check_format:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check code formatting thanks to Spotless
+        run: ./mvnw spotless:check
   test:
+    needs: check_format
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
