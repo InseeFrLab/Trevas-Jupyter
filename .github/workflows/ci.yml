@@ -12,6 +12,9 @@ jobs:
   check_format:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Check code formatting thanks to Spotless
         run: ./mvnw spotless:check
   test:
