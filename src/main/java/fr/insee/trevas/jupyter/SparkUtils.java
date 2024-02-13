@@ -71,6 +71,7 @@ public class SparkUtils {
 
     public static SparkDataset readCSVDataset(SparkSession spark, String path) throws Exception {
         Dataset<Row> dataset;
+            // Test wrong indent
         try {
             dataset = spark.read().option("sep", ";").option("header", "true").csv(path);
         } catch (Exception e) {
