@@ -1,3 +1,4 @@
+/* (C)2024 */
 package fr.insee.trevas.jupyter;
 
 import fr.insee.vtl.engine.VtlScriptEngine;
@@ -12,10 +13,6 @@ import io.github.spencerpark.jupyter.kernel.KernelConnectionProperties;
 import io.github.spencerpark.jupyter.kernel.LanguageInfo;
 import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
 import io.github.spencerpark.jupyter.kernel.display.DisplayData;
-import org.apache.spark.sql.SparkSession;
-
-import javax.script.ScriptContext;
-import javax.script.ScriptEngineFactory;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -23,6 +20,8 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
+import javax.script.ScriptEngineFactory;
+import org.apache.spark.sql.SparkSession;
 
 public class VtlKernel extends BaseKernel {
 
@@ -37,19 +36,20 @@ public class VtlKernel extends BaseKernel {
         this.engine = SparkUtils.buildSparkEngine(spark);
         System.out.println("Loaded VTL engine " + engine.getFactory().getEngineName());
         ScriptEngineFactory factory = engine.getFactory();
-        this.info = new LanguageInfo.Builder(factory.getEngineName())
-                .version(factory.getEngineVersion())
-                .build();
+        this.info =
+                new LanguageInfo.Builder(factory.getEngineName())
+                        .version(factory.getEngineVersion())
+                        .build();
         registerGlobalMethods();
         this.autoCompleter = new OranoranCompleter();
     }
 
-    private static Map<String, Dataset.Role> getRoleMap(Collection<Structured.Component> components) {
+    private static Map<String, Dataset.Role> getRoleMap(
+            Collection<Structured.Component> components) {
         return components.stream()
-                .collect(Collectors.toMap(
-                        Structured.Component::getName,
-                        Structured.Component::getRole
-                ));
+                .collect(
+                        Collectors.toMap(
+                                Structured.Component::getName, Structured.Component::getRole));
     }
 
     private static Map<String, Dataset.Role> getRoleMap(fr.insee.vtl.model.Dataset dataset) {
@@ -101,8 +101,11 @@ public class VtlKernel extends BaseKernel {
     public static Object show(Object o) {
         if (o instanceof Dataset) {
             SparkDataset dataset = asSparkDataset((Dataset) o);
-            var roles = dataset.getDataStructure().entrySet().stream()
-                    .collect(Collectors.toMap(Map.Entry::getKey, e -> e.getValue().getRole()));
+            var roles =
+                    dataset.getDataStructure().entrySet().stream()
+                            .collect(
+                                    Collectors.toMap(
+                                            Map.Entry::getKey, e -> e.getValue().getRole()));
             showDataset(new SparkDataset(dataset.getSparkDataset().limit(50), roles));
         } else {
             displayData.putText(o.toString());
@@ -115,33 +118,49 @@ public class VtlKernel extends BaseKernel {
         b.append("<table id='dataset_").append(dataset.hashCode()).append("' class='display'>");
         b.append("<thead>");
         b.append("<tr>");
-        dataset.getDataStructure().forEach((name, component) -> {
-            b.append("<th>").append(name).append("</th>");
-        });
+        dataset.getDataStructure()
+                .forEach(
+                        (name, component) -> {
+                            b.append("<th>").append(name).append("</th>");
+                        });
         b.append("</tr>");
         b.append("</thead>");
         b.append("<tbody>");
-        dataset.getDataPoints().forEach(row -> {
-            b.append("<tr>");
-            dataset.getDataStructure().keySet().forEach(name -> {
-                b.append("<td>").append(row.get(name)).append("</td>");
-            });
-            b.append("</tr>");
-        });
+        dataset.getDataPoints()
+                .forEach(
+                        row -> {
+                            b.append("<tr>");
+                            dataset.getDataStructure()
+                                    .keySet()
+                                    .forEach(
+                                            name -> {
+                                                b.append("<td>")
+                                                        .append(row.get(name))
+                                                        .append("</td>");
+                                            });
+                            b.append("</tr>");
+                        });
         b.append("</tbody>");
         b.append("</table>");
-        b.append("<script\n" +
-                "  src=\"https://code.jquery.com/jquery-3.6.0.slim.min.js\"\n" +
-                "  integrity=\"sha256-u7e5khyithlIdTpu22PHhENmPcRdFiHRjhAuHcs05RI=\"\n" +
-                "  crossorigin=\"anonymous\"></script>");
-        b.append("<link rel=\"stylesheet\" type=\"text/css\" href=\"https://cdn.datatables.net/1.12.1/css/jquery.dataTables.css\">\n" +
-                "  \n" +
-                "<script type=\"text/javascript\" charset=\"utf8\" src=\"https://cdn.datatables.net/1.12.1/js/jquery.dataTables.js\"></script>\n");
-        b.append("<script type=\"text/javascript\">" +
-                "$(document).ready( function () {\n" +
-                "    $('#dataset_" + dataset.hashCode() + "').DataTable();\n" +
-                "} );" +
-                "</script>");
+        b.append(
+                "<script\n"
+                        + "  src=\"https://code.jquery.com/jquery-3.6.0.slim.min.js\"\n"
+                        + "  integrity=\"sha256-u7e5khyithlIdTpu22PHhENmPcRdFiHRjhAuHcs05RI=\"\n"
+                        + "  crossorigin=\"anonymous\"></script>");
+        b.append(
+                "<link rel=\"stylesheet\" type=\"text/css\""
+                    + " href=\"https://cdn.datatables.net/1.12.1/css/jquery.dataTables.css\">\n"
+                    + "  \n"
+                    + "<script type=\"text/javascript\" charset=\"utf8\""
+                    + " src=\"https://cdn.datatables.net/1.12.1/js/jquery.dataTables.js\"></script>\n");
+        b.append(
+                "<script type=\"text/javascript\">"
+                        + "$(document).ready( function () {\n"
+                        + "    $('#dataset_"
+                        + dataset.hashCode()
+                        + "').DataTable();\n"
+                        + "} );"
+                        + "</script>");
         displayData.putHTML(b.toString());
     }
 
@@ -150,15 +169,16 @@ public class VtlKernel extends BaseKernel {
             SparkDataset ds = (SparkDataset) o;
             StringBuilder sb = new StringBuilder();
             Structured.DataStructure dataStructure = ds.getDataStructure();
-            dataStructure.forEach((key, value) -> {
-                sb.append(key)
-                        .append(" (")
-                        .append(value.getRole().name())
-                        .append(" - ")
-                        .append(value.getType().getSimpleName())
-                        .append(")")
-                        .append("\n");
-            });
+            dataStructure.forEach(
+                    (key, value) -> {
+                        sb.append(key)
+                                .append(" (")
+                                .append(value.getRole().name())
+                                .append(" - ")
+                                .append(value.getType().getSimpleName())
+                                .append(")")
+                                .append("\n");
+                    });
             displayData.putText(sb.toString());
         } else {
             displayData.putText(o.toString());
@@ -168,13 +188,13 @@ public class VtlKernel extends BaseKernel {
 
     public static void main(String[] args) throws Exception {
 
-        if (args.length < 1)
-            throw new IllegalArgumentException("Missing connection file argument");
+        if (args.length < 1) throw new IllegalArgumentException("Missing connection file argument");
 
         Path connectionFile = Paths.get(args[0]);
 
         if (!Files.isRegularFile(connectionFile))
-            throw new IllegalArgumentException("Connection file '" + connectionFile + "' isn't a file.");
+            throw new IllegalArgumentException(
+                    "Connection file '" + connectionFile + "' isn't a file.");
 
         String contents = new String(Files.readAllBytes(connectionFile));
 
@@ -182,7 +202,6 @@ public class VtlKernel extends BaseKernel {
 
         KernelConnectionProperties connProps = KernelConnectionProperties.parse(contents);
         JupyterConnection connection = new JupyterConnection(connProps);
-
 
         VtlKernel kernel = new VtlKernel();
 
@@ -193,14 +212,22 @@ public class VtlKernel extends BaseKernel {
     }
 
     private void registerGlobalMethods() throws NoSuchMethodException {
-        this.engine.registerGlobalMethod("loadParquet", VtlKernel.class.getMethod("loadParquet", String.class));
-        this.engine.registerGlobalMethod("loadCSV", VtlKernel.class.getMethod("loadCSV", String.class));
-        this.engine.registerGlobalMethod("loadSas", VtlKernel.class.getMethod("loadSas", String.class));
-        this.engine.registerGlobalMethod("writeParquet", VtlKernel.class.getMethod("writeParquet", String.class, Dataset.class));
-        this.engine.registerGlobalMethod("writeCSV", VtlKernel.class.getMethod("writeCSV", String.class, Dataset.class));
+        this.engine.registerGlobalMethod(
+                "loadParquet", VtlKernel.class.getMethod("loadParquet", String.class));
+        this.engine.registerGlobalMethod(
+                "loadCSV", VtlKernel.class.getMethod("loadCSV", String.class));
+        this.engine.registerGlobalMethod(
+                "loadSas", VtlKernel.class.getMethod("loadSas", String.class));
+        this.engine.registerGlobalMethod(
+                "writeParquet",
+                VtlKernel.class.getMethod("writeParquet", String.class, Dataset.class));
+        this.engine.registerGlobalMethod(
+                "writeCSV", VtlKernel.class.getMethod("writeCSV", String.class, Dataset.class));
         this.engine.registerGlobalMethod("show", VtlKernel.class.getMethod("show", Object.class));
-        this.engine.registerGlobalMethod("showMetadata", VtlKernel.class.getMethod("showMetadata", Object.class));
-        this.engine.registerGlobalMethod("size", VtlKernel.class.getMethod("getSize", Dataset.class));
+        this.engine.registerGlobalMethod(
+                "showMetadata", VtlKernel.class.getMethod("showMetadata", Object.class));
+        this.engine.registerGlobalMethod(
+                "size", VtlKernel.class.getMethod("getSize", Dataset.class));
     }
 
     @Override
