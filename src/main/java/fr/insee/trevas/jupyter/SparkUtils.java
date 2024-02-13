@@ -3,16 +3,15 @@ package fr.insee.trevas.jupyter;
 
 import fr.insee.vtl.engine.VtlScriptEngine;
 import fr.insee.vtl.spark.SparkDataset;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
 import org.apache.spark.SparkConf;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
 import org.apache.spark.sql.SaveMode;
 import org.apache.spark.sql.SparkSession;
-
-import javax.script.ScriptEngine;
-import javax.script.ScriptEngineManager;
-import java.nio.file.Files;
-import java.nio.file.Path;
 
 public class SparkUtils {
 
@@ -71,7 +70,6 @@ public class SparkUtils {
 
     public static SparkDataset readCSVDataset(SparkSession spark, String path) throws Exception {
         Dataset<Row> dataset;
-            // Test wrong indent
         try {
             dataset = spark.read().option("sep", ";").option("header", "true").csv(path);
         } catch (Exception e) {
