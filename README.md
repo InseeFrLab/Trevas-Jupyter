@@ -32,7 +32,7 @@ Default option values:
 
 Any CSV option can be defined or overridden thanks to url parameters (values have to be encoded).
 
-For instance, to read a CSV content where delimiter is `|` and quote is `'`: 
+For instance, to read a CSV content where delimiter is `|` and quote is `'`:
 
 `loadCSV(...?delimiter=%7C&quote=%27)`
 
