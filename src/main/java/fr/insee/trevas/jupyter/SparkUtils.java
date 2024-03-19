@@ -31,7 +31,7 @@ public class SparkUtils {
         if (Files.exists(path)) {
             org.apache.spark.util.Utils.loadDefaultSparkProperties(
                     conf, path.normalize().toAbsolutePath().toString());
-            if (conf.get("spark.jars", "").equals("")) {
+            if (conf.get("spark.jars", "").isEmpty()) {
                 conf.set(
                         "spark.jars",
                         String.join(
@@ -70,8 +70,16 @@ public class SparkUtils {
 
     public static SparkDataset readCSVDataset(SparkSession spark, String path) throws Exception {
         Dataset<Row> dataset;
+        var uri = Utils.uri(path);
+        var params = new Utils.QueryParam(uri);
         try {
-            dataset = spark.read().option("sep", ";").option("header", "true").csv(path);
+            dataset =
+                    spark.read()
+                            .option("delimiter", params.getValue("delimiter").orElse(";"))
+                            .option("quote", params.getValue("quote").orElse("\""))
+                            .option("header", params.getValue("header").orElse("true"))
+                            .options(params.flatten())
+                            .csv(Path.of(Utils.strip(uri)).normalize().toAbsolutePath().toString());
         } catch (Exception e) {
             throw new Exception(e);
         }
@@ -85,6 +93,15 @@ public class SparkUtils {
 
     public static void writeCSVDataset(String location, SparkDataset dataset) {
         org.apache.spark.sql.Dataset<Row> sparkDataset = dataset.getSparkDataset();
-        sparkDataset.write().mode(SaveMode.Overwrite).csv(location);
+        var uri = Utils.uri(location);
+        var params = new Utils.QueryParam(uri);
+        sparkDataset
+                .write()
+                .option("delimiter", params.getValue("delimiter").orElse(";"))
+                .option("quote", params.getValue("quote").orElse("\""))
+                .option("header", params.getValue("header").orElse("true"))
+                .options(params.flatten())
+                .mode(SaveMode.Overwrite)
+                .csv(Path.of(Utils.strip(uri)).normalize().toAbsolutePath().toString());
     }
 }
