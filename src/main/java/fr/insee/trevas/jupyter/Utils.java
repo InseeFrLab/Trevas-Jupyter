@@ -1,18 +1,12 @@
 package fr.insee.trevas.jupyter;
 
-import com.amazonaws.services.dynamodbv2.xspec.S;
-
-import javax.swing.text.html.Option;
-import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class Utils {
 

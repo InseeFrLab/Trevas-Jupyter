@@ -7,7 +7,6 @@ import fr.insee.vtl.parser.VtlLexer;
 import fr.insee.vtl.parser.VtlParser;
 import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
 
-import javax.script.Bindings;
 import java.util.ArrayList;
 import java.util.Collection;
 

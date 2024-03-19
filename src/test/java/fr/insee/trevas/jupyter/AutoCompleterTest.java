@@ -3,7 +3,6 @@ package fr.insee.trevas.jupyter;
 import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
 import org.junit.jupiter.api.Test;
 
-import javax.script.SimpleBindings;
 import java.time.Duration;
 import java.time.Instant;
 
