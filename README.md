@@ -51,3 +51,15 @@ Any CSV option can be defined or overridden thanks to url parameters (values hav
 For instance, to write a CSV with a content delimited by `|` and quoted by `'`:
 
 `writeCSV(...?delimiter=%7C&quote=%27)`
+
+## Launch with demo project
+
+`INIT_PROJECT_URL` docker environment variable enable to load a default project in your Trevas Jupyter instance.
+
+Have a look to [this project definition](https://github.com/Making-Sense-Info/Trevas-Jupyter-Training) for instance.
+
+Fill the `INIT_PROJECT_URL` environment variable with your script adress and run:
+
+```bash
+docker run -p 8888:8888 -e INIT_PROJECT_URL="https://raw.githubusercontent.com/Making-Sense-Info/Trevas-Jupyter-Training/main/init-notebook.sh" inseefrlab/trevas-jupyter:latest
+```
