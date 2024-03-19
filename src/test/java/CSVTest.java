@@ -40,7 +40,7 @@ public class CSVTest {
                 SparkSession.builder().appName("test").master("local").getOrCreate()) {
             Dataset ds1 = SparkUtils.readCSVDataset(spark, "src/test/resources/ds1.csv");
             assertThat(ds1.getDataPoints().get(1).get("name")).isEqualTo("B");
-            Dataset ds2 = SparkUtils.readCSVDataset(spark, "src/test/resources/ds2.csv?sep=%7C");
+            Dataset ds2 = SparkUtils.readCSVDataset(spark, "src/test/resources/ds2.csv?delimiter=%7C&quote=%27");
             assertThat(ds2.getDataPoints().get(1).get("name")).isEqualTo("G");
         }
     }
