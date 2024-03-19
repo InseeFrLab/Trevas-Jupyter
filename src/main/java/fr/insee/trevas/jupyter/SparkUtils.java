@@ -3,6 +3,7 @@ package fr.insee.trevas.jupyter;
 
 import fr.insee.vtl.engine.VtlScriptEngine;
 import fr.insee.vtl.spark.SparkDataset;
+import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.spark.SparkConf;
 import org.apache.spark.sql.Dataset;
 import org.apache.spark.sql.Row;
@@ -11,9 +12,9 @@ import org.apache.spark.sql.SparkSession;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
+
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Map;
 
 public class SparkUtils {
 
@@ -33,7 +34,7 @@ public class SparkUtils {
         if (Files.exists(path)) {
             org.apache.spark.util.Utils.loadDefaultSparkProperties(
                     conf, path.normalize().toAbsolutePath().toString());
-            if (conf.get("spark.jars", "").equals("")) {
+            if (conf.get("spark.jars", "").isEmpty()) {
                 conf.set(
                         "spark.jars",
                         String.join(
@@ -72,15 +73,13 @@ public class SparkUtils {
 
     public static SparkDataset readCSVDataset(SparkSession spark, String path) throws Exception {
         Dataset<Row> dataset;
-
-        String url = Utils.getURL(path);
-        Map<String, String> options = Utils.getQueryMap(path);
-
+        var uri = Utils.uri(path);
+        var params = new Utils.QueryParam(uri);
         try {
-            dataset = spark.read().option("sep", ";")
+            dataset = spark.read().option("sep", params.getValue("sep").orElse(";"))
                     .option("header", "true")
-                    .options(options)
-                    .csv(url);
+                    .options(params.flatten())
+                    .csv(Path.of(Utils.strip(uri)).normalize().toAbsolutePath().toString());
         } catch (Exception e) {
             throw new Exception(e);
         }
@@ -96,4 +95,5 @@ public class SparkUtils {
         org.apache.spark.sql.Dataset<Row> sparkDataset = dataset.getSparkDataset();
         sparkDataset.write().mode(SaveMode.Overwrite).csv(location);
     }
+
 }
