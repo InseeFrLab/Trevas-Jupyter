@@ -76,7 +76,8 @@ public class SparkUtils {
             dataset =
                     spark.read()
                             .option("sep", params.getValue("sep").orElse(";"))
-                            .option("header", "true")
+                            .option("delimiter", params.getValue("delimiter").orElse("\""))
+                            .option("header", params.getValue("header").orElse("true"))
                             .options(params.flatten())
                             .csv(Path.of(Utils.strip(uri)).normalize().toAbsolutePath().toString());
         } catch (Exception e) {
@@ -92,6 +93,15 @@ public class SparkUtils {
 
     public static void writeCSVDataset(String location, SparkDataset dataset) {
         org.apache.spark.sql.Dataset<Row> sparkDataset = dataset.getSparkDataset();
-        sparkDataset.write().mode(SaveMode.Overwrite).csv(location);
+        var uri = Utils.uri(location);
+        var params = new Utils.QueryParam(uri);
+        sparkDataset
+                .write()
+                .option("sep", params.getValue("sep").orElse(";"))
+                .option("delimiter", params.getValue("delimiter").orElse("\""))
+                .option("header", params.getValue("header").orElse("true"))
+                .options(params.flatten())
+                .mode(SaveMode.Overwrite)
+                .csv(Path.of(Utils.strip(uri)).normalize().toAbsolutePath().toString());
     }
 }

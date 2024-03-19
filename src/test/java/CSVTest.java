@@ -5,14 +5,13 @@ import fr.insee.trevas.jupyter.SparkUtils;
 import fr.insee.trevas.jupyter.Utils;
 import fr.insee.vtl.model.Dataset;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.file.Path;
 import org.apache.spark.sql.SparkSession;
 import org.junit.jupiter.api.Test;
 
 public class CSVTest {
     @Test
-    void testURI() throws URISyntaxException {
+    void testURI() {
         URI uri;
 
         uri = Utils.uri("src/test/resources/ds1.csv");
