@@ -1,12 +1,12 @@
+/* (C)2024 */
 package fr.insee.trevas.jupyter;
 
-import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
-import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.assertThat;
 
+import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
 import java.time.Duration;
 import java.time.Instant;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.Test;
 
 public class AutoCompleterTest {
 

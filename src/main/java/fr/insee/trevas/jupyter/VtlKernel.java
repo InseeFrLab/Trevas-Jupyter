@@ -13,9 +13,6 @@ import io.github.spencerpark.jupyter.kernel.KernelConnectionProperties;
 import io.github.spencerpark.jupyter.kernel.LanguageInfo;
 import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
 import io.github.spencerpark.jupyter.kernel.display.DisplayData;
-import org.apache.spark.sql.SparkSession;
-
-import javax.script.ScriptEngineFactory;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -23,6 +20,8 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
+import javax.script.ScriptEngineFactory;
+import org.apache.spark.sql.SparkSession;
 
 public class VtlKernel extends BaseKernel {
 
@@ -150,10 +149,10 @@ public class VtlKernel extends BaseKernel {
                         + "  crossorigin=\"anonymous\"></script>");
         b.append(
                 "<link rel=\"stylesheet\" type=\"text/css\""
-                        + " href=\"https://cdn.datatables.net/1.12.1/css/jquery.dataTables.css\">\n"
-                        + "  \n"
-                        + "<script type=\"text/javascript\" charset=\"utf8\""
-                        + " src=\"https://cdn.datatables.net/1.12.1/js/jquery.dataTables.js\"></script>\n");
+                    + " href=\"https://cdn.datatables.net/1.12.1/css/jquery.dataTables.css\">\n"
+                    + "  \n"
+                    + "<script type=\"text/javascript\" charset=\"utf8\""
+                    + " src=\"https://cdn.datatables.net/1.12.1/js/jquery.dataTables.js\"></script>\n");
         b.append(
                 "<script type=\"text/javascript\">"
                         + "$(document).ready( function () {\n"

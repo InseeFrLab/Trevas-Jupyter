@@ -1,14 +1,14 @@
+/* (C)2024 */
+import static org.assertj.core.api.Assertions.assertThat;
+
 import fr.insee.trevas.jupyter.SparkUtils;
 import fr.insee.trevas.jupyter.Utils;
 import fr.insee.vtl.model.Dataset;
-import org.apache.spark.sql.SparkSession;
-import org.junit.jupiter.api.Test;
-
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Path;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import org.apache.spark.sql.SparkSession;
+import org.junit.jupiter.api.Test;
 
 public class CSVTest {
     @Test
@@ -37,10 +37,8 @@ public class CSVTest {
 
     @Test
     public void readCSVDatasetTest() throws Exception {
-        try (SparkSession spark = SparkSession.builder()
-                .appName("test")
-                .master("local")
-                .getOrCreate()) {
+        try (SparkSession spark =
+                SparkSession.builder().appName("test").master("local").getOrCreate()) {
             Dataset ds1 = SparkUtils.readCSVDataset(spark, "src/test/resources/ds1.csv");
             assertThat(ds1.getDataPoints().get(1).get("name")).isEqualTo("B");
             Dataset ds2 = SparkUtils.readCSVDataset(spark, "src/test/resources/ds2.csv?sep=%7C");
