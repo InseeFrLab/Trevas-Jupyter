@@ -75,8 +75,8 @@ public class SparkUtils {
         try {
             dataset =
                     spark.read()
-                            .option("sep", params.getValue("sep").orElse(";"))
-                            .option("delimiter", params.getValue("delimiter").orElse("\""))
+                            .option("delimiter", params.getValue("delimiter").orElse(";"))
+                            .option("quote", params.getValue("quote").orElse("\""))
                             .option("header", params.getValue("header").orElse("true"))
                             .options(params.flatten())
                             .csv(Path.of(Utils.strip(uri)).normalize().toAbsolutePath().toString());
@@ -97,8 +97,8 @@ public class SparkUtils {
         var params = new Utils.QueryParam(uri);
         sparkDataset
                 .write()
-                .option("sep", params.getValue("sep").orElse(";"))
-                .option("delimiter", params.getValue("delimiter").orElse("\""))
+                .option("delimiter", params.getValue("delimiter").orElse(";"))
+                .option("quote", params.getValue("quote").orElse("\""))
                 .option("header", params.getValue("header").orElse("true"))
                 .options(params.flatten())
                 .mode(SaveMode.Overwrite)
