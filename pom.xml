@@ -37,6 +37,13 @@
             <id>vendor</id>
             <url>file://${project.basedir}/vendor</url>
         </repository>
+        <repository>
+            <id>Github</id>
+            <url>https://maven.pkg.github.com/bis-med-it/sdmx-core</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
     </repositories>
 
     <dependencies>
