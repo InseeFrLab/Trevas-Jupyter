@@ -18,7 +18,7 @@
     </licenses>
 
     <properties>
-        <java.version>17</java.version>
+        <jdk.version>11</jdk.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <trevas.version>1.4.1</trevas.version>
         <spotless.version>2.43.0</spotless.version>
@@ -197,10 +197,10 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.12.1</version>
                 <configuration>
-                    <release>${java.version}</release>
-                    <testRelease>${java.version}</testRelease>
-                    <target>${java.version}</target>
-                    <source>${java.version}</source>
+                    <release>${jdk.version}</release>
+                    <testRelease>${jdk.version}</testRelease>
+                    <target>${jdk.version}</target>
+                    <source>${jdk.version}</source>
                 </configuration>
             </plugin>
             <plugin>
