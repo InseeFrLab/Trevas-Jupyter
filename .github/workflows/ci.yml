@@ -29,6 +29,15 @@ jobs:
         with:
           java-version: 17
           distribution: "adopt"
+      - uses: s4u/maven-settings-action@v3.0.0
+        with:
+          githubServer: false
+          servers: |
+            [{
+                "id": "Github",
+                "username": "${{ secrets.GH_PACKAGES_USERNAME }}",
+                "password": "${{ secrets.GH_PACKAGES_PASSWORD }}"
+            }]
       - name: Test Trevas Jupyter
         run: ./mvnw test
   package:
@@ -43,6 +52,15 @@ jobs:
         with:
           java-version: 17
           distribution: "adopt"
+      - uses: s4u/maven-settings-action@v3.0.0
+        with:
+          githubServer: false
+          servers: |
+            [{
+                "id": "Github",
+                "username": "${{ secrets.GH_PACKAGES_USERNAME }}",
+                "password": "${{ secrets.GH_PACKAGES_PASSWORD }}"
+            }]
       - name: Package Trevas Jupyter
         run: ./mvnw package
   deploy-dockerhub:
