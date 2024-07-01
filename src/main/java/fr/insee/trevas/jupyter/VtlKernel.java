@@ -3,8 +3,11 @@ package fr.insee.trevas.jupyter;
 
 import fr.insee.vtl.engine.VtlScriptEngine;
 import fr.insee.vtl.model.Dataset;
+import fr.insee.vtl.model.InMemoryDataset;
 import fr.insee.vtl.model.PersistentDataset;
 import fr.insee.vtl.model.Structured;
+import fr.insee.vtl.sdmx.SDMXVTLWorkflow;
+import fr.insee.vtl.sdmx.TrevasSDMXUtils;
 import fr.insee.vtl.spark.SparkDataset;
 import io.github.spencerpark.jupyter.channels.JupyterConnection;
 import io.github.spencerpark.jupyter.channels.JupyterSocket;
@@ -13,27 +16,32 @@ import io.github.spencerpark.jupyter.kernel.KernelConnectionProperties;
 import io.github.spencerpark.jupyter.kernel.LanguageInfo;
 import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
 import io.github.spencerpark.jupyter.kernel.display.DisplayData;
+import io.sdmx.api.io.ReadableDataLocation;
+import io.sdmx.utils.core.io.ReadableDataLocationTmp;
+import org.apache.spark.sql.SparkSession;
+
+import javax.script.ScriptContext;
+import javax.script.ScriptEngineFactory;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
-import javax.script.ScriptEngineFactory;
-import org.apache.spark.sql.SparkSession;
 
 public class VtlKernel extends BaseKernel {
 
     private static DisplayData displayData = new DisplayData();
     private static SparkSession spark;
-    private final VtlScriptEngine engine;
+    private static VtlScriptEngine engine;
     private final LanguageInfo info;
     private final AutoCompleter autoCompleter;
 
     public VtlKernel() throws Exception {
         spark = SparkUtils.buildSparkSession();
-        this.engine = SparkUtils.buildSparkEngine(spark);
+        engine = SparkUtils.buildSparkEngine(spark);
         System.out.println("Loaded VTL engine " + engine.getFactory().getEngineName());
         ScriptEngineFactory factory = engine.getFactory();
         this.info =
@@ -114,76 +122,100 @@ public class VtlKernel extends BaseKernel {
     }
 
     private static void showDataset(Dataset dataset) {
-        var b = new StringBuilder();
-        b.append("<table id='dataset_").append(dataset.hashCode()).append("' class='display'>");
-        b.append("<thead>");
-        b.append("<tr>");
-        dataset.getDataStructure()
-                .forEach(
-                        (name, component) -> {
-                            b.append("<th>").append(name).append("</th>");
-                        });
-        b.append("</tr>");
-        b.append("</thead>");
-        b.append("<tbody>");
-        dataset.getDataPoints()
-                .forEach(
-                        row -> {
-                            b.append("<tr>");
-                            dataset.getDataStructure()
-                                    .keySet()
-                                    .forEach(
-                                            name -> {
-                                                b.append("<td>")
-                                                        .append(row.get(name))
-                                                        .append("</td>");
-                                            });
-                            b.append("</tr>");
-                        });
-        b.append("</tbody>");
-        b.append("</table>");
-        b.append(
-                "<script\n"
-                        + "  src=\"https://code.jquery.com/jquery-3.6.0.slim.min.js\"\n"
-                        + "  integrity=\"sha256-u7e5khyithlIdTpu22PHhENmPcRdFiHRjhAuHcs05RI=\"\n"
-                        + "  crossorigin=\"anonymous\"></script>");
-        b.append(
-                "<link rel=\"stylesheet\" type=\"text/css\""
-                    + " href=\"https://cdn.datatables.net/1.12.1/css/jquery.dataTables.css\">\n"
-                    + "  \n"
-                    + "<script type=\"text/javascript\" charset=\"utf8\""
-                    + " src=\"https://cdn.datatables.net/1.12.1/js/jquery.dataTables.js\"></script>\n");
-        b.append(
-                "<script type=\"text/javascript\">"
-                        + "$(document).ready( function () {\n"
-                        + "    $('#dataset_"
-                        + dataset.hashCode()
-                        + "').DataTable();\n"
-                        + "} );"
-                        + "</script>");
-        displayData.putHTML(b.toString());
+        displayData.putHTML(DatasetUtils.datasetToDisplay(dataset));
     }
 
     public static Object showMetadata(Object o) {
         if (o instanceof Dataset) {
-            SparkDataset ds = (SparkDataset) o;
-            StringBuilder sb = new StringBuilder();
-            Structured.DataStructure dataStructure = ds.getDataStructure();
-            dataStructure.forEach(
-                    (key, value) -> {
-                        sb.append(key)
-                                .append(" (")
-                                .append(value.getRole().name())
-                                .append(" - ")
-                                .append(value.getType().getSimpleName())
-                                .append(")")
-                                .append("\n");
-                    });
-            displayData.putText(sb.toString());
+            displayData.putText(DatasetUtils.datasetMetadataToDisplay((Dataset) o));
         } else {
             displayData.putText(o.toString());
         }
         return o;
+    }
+
+    public static Dataset loadSDMXSource(String path, String id) {
+        Structured.DataStructure structure = TrevasSDMXUtils.buildStructureFromSDMX3(path, id);
+        return new InMemoryDataset(List.of(List.of()), structure);
+    }
+
+    public static Dataset loadSDMXSource(String path, String id, String dataPath) {
+        Structured.DataStructure structure = TrevasSDMXUtils.buildStructureFromSDMX3(path, id);
+        return new SparkDataset(
+                spark.read()
+                        .option("header", "true")
+                        .option("delimiter", ";")
+                        .option("quote", "\"")
+                        .csv(dataPath),
+                structure
+        );
+    }
+
+    public static void runSDMXPreview(String path) {
+        ReadableDataLocation rdl = new ReadableDataLocationTmp(path);
+
+        SDMXVTLWorkflow sdmxVtlWorkflow = new SDMXVTLWorkflow(engine, rdl, Map.of());
+
+        Map<String, Dataset> emptyDatasets = sdmxVtlWorkflow.getEmptyDatasets();
+        engine.getBindings(ScriptContext.ENGINE_SCOPE).putAll(emptyDatasets);
+
+        Map<String, PersistentDataset> results = sdmxVtlWorkflow.run();
+
+        var result = new StringBuilder();
+
+        results.forEach((k, v) -> {
+            result.append("<h2>").append(k).append("</h2>")
+                    .append(DatasetUtils.datasetMetadataToDisplay(v));
+        });
+
+        displayData.putText(result.toString());
+    }
+
+    public static void runSDMX(String path, Map<String, String> data) {
+
+        Map<String, Dataset> inputs = data.entrySet().stream().collect(Collectors.toMap(
+                Map.Entry::getKey,
+                e -> {
+                    Structured.DataStructure structure = TrevasSDMXUtils.buildStructureFromSDMX3(path, e.getKey());
+                    return new SparkDataset(
+                            spark.read()
+                                    .option("header", "true")
+                                    .option("delimiter", ";")
+                                    .option("quote", "\"")
+                                    .csv(e.getValue()),
+                            structure
+                    );
+                }
+        ));
+
+        ReadableDataLocation rdl = new ReadableDataLocationTmp(path);
+        SDMXVTLWorkflow sdmxVtlWorkflow = new SDMXVTLWorkflow(engine, rdl, inputs);
+        Map<String, PersistentDataset> results = sdmxVtlWorkflow.run();
+
+        var result = new StringBuilder();
+
+        results.forEach((k, v) -> {
+            result.append("<h2>").append(k).append("</h2>")
+                    .append(DatasetUtils.datasetToDisplay(v));
+        });
+
+        displayData.putText(result.toString());
+    }
+
+    public static void getTransformationsVTL(String path) {
+        ReadableDataLocation rdl = new ReadableDataLocationTmp(path);
+        SDMXVTLWorkflow sdmxVtlWorkflow = new SDMXVTLWorkflow(engine, rdl, Map.of());
+        String vtl = sdmxVtlWorkflow.getTransformationsVTL();
+
+        displayData.putText(vtl);
+    }
+
+    public static void getRulesetsVTL(String path) {
+        ReadableDataLocation rdl = new ReadableDataLocationTmp(path);
+        SDMXVTLWorkflow sdmxVtlWorkflow = new SDMXVTLWorkflow(engine, rdl, Map.of());
+        String dprs = sdmxVtlWorkflow.getRulesetsVTL();
+
+        displayData.putText(dprs);
     }
 
     public static void main(String[] args) throws Exception {
@@ -228,6 +260,24 @@ public class VtlKernel extends BaseKernel {
                 "showMetadata", VtlKernel.class.getMethod("showMetadata", Object.class));
         this.engine.registerGlobalMethod(
                 "size", VtlKernel.class.getMethod("getSize", Dataset.class));
+
+        // SDMX
+        this.engine.registerGlobalMethod(
+                "loadSDMXSource", VtlKernel.class.getMethod("loadSDMXSource", String.class, String.class)
+        );
+        this.engine.registerGlobalMethod(
+                "loadSDMXSource", VtlKernel.class.getMethod("loadSDMXSource", String.class, String.class, String.class)
+        );
+        this.engine.registerGlobalMethod(
+                "runSDMXPreview", VtlKernel.class.getMethod("runSDMXPreview", String.class)
+        );
+        //this.engine.registerGlobalMethod(
+        //        "runSDMX", VtlKernel.class.getMethod("runSDMX", String.class, Map<String, String>)
+        //);
+        this.engine.registerGlobalMethod(
+                "getTransformationsVTL", VtlKernel.class.getMethod("getTransformationsVTL", String.class));
+        this.engine.registerGlobalMethod(
+                "getRulesetsVTL", VtlKernel.class.getMethod("getRulesetsVTL", String.class));
     }
 
     @Override
