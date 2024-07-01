@@ -1,3 +1,4 @@
+/* (C)2024 */
 package fr.insee.trevas.jupyter;
 
 import fr.insee.vtl.model.Dataset;
@@ -41,10 +42,10 @@ public class DatasetUtils {
                         + "  crossorigin=\"anonymous\"></script>");
         b.append(
                 "<link rel=\"stylesheet\" type=\"text/css\""
-                        + " href=\"https://cdn.datatables.net/1.12.1/css/jquery.dataTables.css\">\n"
-                        + "  \n"
-                        + "<script type=\"text/javascript\" charset=\"utf8\""
-                        + " src=\"https://cdn.datatables.net/1.12.1/js/jquery.dataTables.js\"></script>\n");
+                    + " href=\"https://cdn.datatables.net/1.12.1/css/jquery.dataTables.css\">\n"
+                    + "  \n"
+                    + "<script type=\"text/javascript\" charset=\"utf8\""
+                    + " src=\"https://cdn.datatables.net/1.12.1/js/jquery.dataTables.js\"></script>\n");
         b.append(
                 "<script type=\"text/javascript\">"
                         + "$(document).ready( function () {\n"
@@ -71,12 +72,9 @@ public class DatasetUtils {
                             .append(value.getType().getSimpleName());
                     String valuedomain = value.getValuedomain();
                     if (null != valuedomain) {
-                        sb.append(" - ")
-                                .append(valuedomain);
+                        sb.append(" - ").append(valuedomain);
                     }
-                    sb.append(")")
-                            .append("</li>")
-                            .append("\n");
+                    sb.append(")").append("</li>").append("\n");
                 });
         sb.append("</ul>");
         return sb.toString();

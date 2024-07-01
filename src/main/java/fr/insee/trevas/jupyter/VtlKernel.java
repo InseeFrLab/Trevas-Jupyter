@@ -18,10 +18,6 @@ import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
 import io.github.spencerpark.jupyter.kernel.display.DisplayData;
 import io.sdmx.api.io.ReadableDataLocation;
 import io.sdmx.utils.core.io.ReadableDataLocationTmp;
-import org.apache.spark.sql.SparkSession;
-
-import javax.script.ScriptContext;
-import javax.script.ScriptEngineFactory;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -30,6 +26,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
+import javax.script.ScriptContext;
+import javax.script.ScriptEngineFactory;
+import org.apache.spark.sql.SparkSession;
 
 public class VtlKernel extends BaseKernel {
 
@@ -147,8 +146,7 @@ public class VtlKernel extends BaseKernel {
                         .option("delimiter", ";")
                         .option("quote", "\"")
                         .csv(dataPath),
-                structure
-        );
+                structure);
     }
 
     public static void runSDMXPreview(String path) {
@@ -163,30 +161,36 @@ public class VtlKernel extends BaseKernel {
 
         var result = new StringBuilder();
 
-        results.forEach((k, v) -> {
-            result.append("<h2>").append(k).append("</h2>")
-                    .append(DatasetUtils.datasetMetadataToDisplay(v));
-        });
+        results.forEach(
+                (k, v) -> {
+                    result.append("<h2>")
+                            .append(k)
+                            .append("</h2>")
+                            .append(DatasetUtils.datasetMetadataToDisplay(v));
+                });
 
         displayData.putText(result.toString());
     }
 
     public static void runSDMX(String path, Map<String, String> data) {
 
-        Map<String, Dataset> inputs = data.entrySet().stream().collect(Collectors.toMap(
-                Map.Entry::getKey,
-                e -> {
-                    Structured.DataStructure structure = TrevasSDMXUtils.buildStructureFromSDMX3(path, e.getKey());
-                    return new SparkDataset(
-                            spark.read()
-                                    .option("header", "true")
-                                    .option("delimiter", ";")
-                                    .option("quote", "\"")
-                                    .csv(e.getValue()),
-                            structure
-                    );
-                }
-        ));
+        Map<String, Dataset> inputs =
+                data.entrySet().stream()
+                        .collect(
+                                Collectors.toMap(
+                                        Map.Entry::getKey,
+                                        e -> {
+                                            Structured.DataStructure structure =
+                                                    TrevasSDMXUtils.buildStructureFromSDMX3(
+                                                            path, e.getKey());
+                                            return new SparkDataset(
+                                                    spark.read()
+                                                            .option("header", "true")
+                                                            .option("delimiter", ";")
+                                                            .option("quote", "\"")
+                                                            .csv(e.getValue()),
+                                                    structure);
+                                        }));
 
         ReadableDataLocation rdl = new ReadableDataLocationTmp(path);
         SDMXVTLWorkflow sdmxVtlWorkflow = new SDMXVTLWorkflow(engine, rdl, inputs);
@@ -194,10 +198,13 @@ public class VtlKernel extends BaseKernel {
 
         var result = new StringBuilder();
 
-        results.forEach((k, v) -> {
-            result.append("<h2>").append(k).append("</h2>")
-                    .append(DatasetUtils.datasetToDisplay(v));
-        });
+        results.forEach(
+                (k, v) -> {
+                    result.append("<h2>")
+                            .append(k)
+                            .append("</h2>")
+                            .append(DatasetUtils.datasetToDisplay(v));
+                });
 
         displayData.putText(result.toString());
     }
@@ -263,19 +270,20 @@ public class VtlKernel extends BaseKernel {
 
         // SDMX
         this.engine.registerGlobalMethod(
-                "loadSDMXSource", VtlKernel.class.getMethod("loadSDMXSource", String.class, String.class)
-        );
+                "loadSDMXSource",
+                VtlKernel.class.getMethod("loadSDMXSource", String.class, String.class));
         this.engine.registerGlobalMethod(
-                "loadSDMXSource", VtlKernel.class.getMethod("loadSDMXSource", String.class, String.class, String.class)
-        );
+                "loadSDMXSource",
+                VtlKernel.class.getMethod(
+                        "loadSDMXSource", String.class, String.class, String.class));
         this.engine.registerGlobalMethod(
-                "runSDMXPreview", VtlKernel.class.getMethod("runSDMXPreview", String.class)
-        );
-        //this.engine.registerGlobalMethod(
+                "runSDMXPreview", VtlKernel.class.getMethod("runSDMXPreview", String.class));
+        // this.engine.registerGlobalMethod(
         //        "runSDMX", VtlKernel.class.getMethod("runSDMX", String.class, Map<String, String>)
-        //);
+        // );
         this.engine.registerGlobalMethod(
-                "getTransformationsVTL", VtlKernel.class.getMethod("getTransformationsVTL", String.class));
+                "getTransformationsVTL",
+                VtlKernel.class.getMethod("getTransformationsVTL", String.class));
         this.engine.registerGlobalMethod(
                 "getRulesetsVTL", VtlKernel.class.getMethod("getRulesetsVTL", String.class));
     }
