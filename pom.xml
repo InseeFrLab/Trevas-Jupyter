@@ -218,6 +218,8 @@
                         <format>
                             <!-- define the files to apply to -->
                             <includes>
+                                <include>src/main/java/**/*.java</include> <!-- Check application code -->
+                                <include>src/test/java/**/*.java</include> <!-- Check application tests code -->
                                 <include>*.md</include>
                                 <include>.gitignore</include>
                             </includes>
