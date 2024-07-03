@@ -126,7 +126,7 @@ public class VtlKernel extends BaseKernel {
 
     public static Object showMetadata(Object o) {
         if (o instanceof Dataset) {
-            displayData.putText(DatasetUtils.datasetMetadataToDisplay((Dataset) o));
+            displayData.putHTML(DatasetUtils.datasetMetadataToDisplay((Dataset) o));
         } else {
             displayData.putText(o.toString());
         }
@@ -169,7 +169,7 @@ public class VtlKernel extends BaseKernel {
                             .append(DatasetUtils.datasetMetadataToDisplay(v));
                 });
 
-        displayData.putText(result.toString());
+        displayData.putHTML(result.toString());
     }
 
     public static void runSDMX(String path, Map<String, String> data) {
@@ -206,7 +206,7 @@ public class VtlKernel extends BaseKernel {
                             .append(DatasetUtils.datasetToDisplay(v));
                 });
 
-        displayData.putText(result.toString());
+        displayData.putHTML(result.toString());
     }
 
     public static void getTransformationsVTL(String path) {
