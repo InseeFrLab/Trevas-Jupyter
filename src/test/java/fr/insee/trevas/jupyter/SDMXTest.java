@@ -12,7 +12,7 @@ public class SDMXTest {
     @Test
     public void testLoadSDMXSource() {
         Dataset ds =
-                VtlKernel.loadSDMXSource(
+                VtlKernel.loadSDMXEmptySource(
                         "src/test/resources/sdmx/DSD_BPE_CENSUS.xml", "BPE_DETAIL_VTL");
         assertThat(ds.getDataStructure().size()).isEqualTo(6);
     }

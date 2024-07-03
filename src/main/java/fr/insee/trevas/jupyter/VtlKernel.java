@@ -133,7 +133,7 @@ public class VtlKernel extends BaseKernel {
         return o;
     }
 
-    public static Dataset loadSDMXSource(String path, String id) {
+    public static Dataset loadSDMXEmptySource(String path, String id) {
         Structured.DataStructure structure = TrevasSDMXUtils.buildStructureFromSDMX3(path, id);
         return new InMemoryDataset(List.of(List.of()), structure);
     }
@@ -270,8 +270,8 @@ public class VtlKernel extends BaseKernel {
 
         // SDMX
         this.engine.registerGlobalMethod(
-                "loadSDMXSource",
-                VtlKernel.class.getMethod("loadSDMXSource", String.class, String.class));
+                "loadSDMXEmptySource",
+                VtlKernel.class.getMethod("loadSDMXEmptySource", String.class, String.class));
         this.engine.registerGlobalMethod(
                 "loadSDMXSource",
                 VtlKernel.class.getMethod(
