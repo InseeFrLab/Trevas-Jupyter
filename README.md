@@ -9,16 +9,22 @@ Jupyter notebook providing VTL support through Trevas engine
 
 Custom functions have been introduced into the Trevas engine.
 
-| Name         | Arguments                | Description                          |
-|--------------|--------------------------|--------------------------------------|
-| loadParquet  | String url               | Load Parquet dataset                 |
-| loadCSV (1)  | String url               | Load CSV dataset                     |
-| loadSas      | String url               | Load Sas dataset                     |
-| writeParquet | (String url, Dataset ds) | Write given dataset in Parquet       |
-| writeCSV (2) | (String url, Dataset ds) | Write given dataset in CSV           |
-| show         | Dataset ds               | Display firt rows of a given dataset |
-| showMetadata | Dataset ds               | Display metadata of a given dataset  |
-| size         | Dataset ds               | Display size of a given dataset      |
+| Name                  | Arguments                                               | Returned type | Description                                                                             |
+| --------------------- | ------------------------------------------------------- | ------------- | --------------------------------------------------------------------------------------- |
+| loadParquet           | String url                                              | Dataset       | Load Parquet dataset                                                                    |
+| loadCSV (1)           | String url                                              | Dataset       | Load CSV dataset                                                                        |
+| loadSas               | String url                                              | Dataset       | Load Sas dataset                                                                        |
+| loadSDMXEmptySource   | (String sdmxMesUrl, String structureId)                 | Dataset       | Load SDMX empty source                                                                  |
+| loadSDMXSource (2)    | (String sdmxMesUrl, String structureId, String dataUrl) | Dataset       | Load SDMX source                                                                        |
+| writeParquet          | (String url, Dataset ds)                                | String        | Write given dataset in Parquet                                                          |
+| writeCSV (3)          | (String url, Dataset ds)                                | String        | Write given dataset in CSV                                                              |
+| show                  | Dataset ds                                              | DisplayData   | Display firt rows of a given dataset                                                    |
+| showMetadata          | Dataset ds                                              | DisplayData   | Display metadata of a given dataset                                                     |
+| runSDMXPreview        | String sdmxMesUrl                                       | DisplayData   | Run SDMX VTL transformations, with empty datasets, to obtain Persitent defined datasets |
+| runSDMX (4)           | (String sdmxMesUrl, String dataLocations )              | DisplayData   | Run SDMX VTL transformations, with sources, to obtain Persitent defined datasets        |
+| getTransformationsVTL | String sdmxMesUrl                                       | String        | Display VTL transformations defined in the SDMX Message file                            |
+| getRulesetsVTL        | String sdmxMesUrl                                       | String        | Display VTL rulesets defined in the SDMX Message file                                   |
+| size                  | Dataset ds                                              | String        | Display size of a given dataset                                                         |
 
 ### (1) loadCSV
 
@@ -36,7 +42,11 @@ For instance, to read a CSV content where delimiter is `|` and quote is `'`:
 
 `loadCSV(...?delimiter=%7C&quote=%27)`
 
-### (2) writeCSV
+### (2) loadSDMXSource
+
+Sources has to be `.csv` files for now.
+
+### (3) writeCSV
 
 Default option values:
 
@@ -51,6 +61,12 @@ Any CSV option can be defined or overridden thanks to url parameters (values hav
 For instance, to write a CSV with a content delimited by `|` and quoted by `'`:
 
 `writeCSV(...?delimiter=%7C&quote=%27)`
+
+### (4) runSDMX
+
+Sources has to be `.csv` files for now.
+
+Second argument, `dataLocations` has to be a string separated field containing SDMX structure id and source location (ex: `structId1,dataLocation1,structId2,dataLocation2`)
 
 ## Launch with demo project
 
