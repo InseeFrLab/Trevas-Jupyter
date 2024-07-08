@@ -12,15 +12,15 @@ import java.util.Collection;
 
 public class OranoranCompleter implements AutoCompleter {
 
-    private static final LexerAndParserFactory lexerAndParserFactory =
-            new ReflectionLexerAndParserFactory(VtlLexer.class, VtlParser.class);
+	private static final LexerAndParserFactory lexerAndParserFactory =
+			new ReflectionLexerAndParserFactory(VtlLexer.class, VtlParser.class);
 
-    public OranoranCompleter() {}
+	public OranoranCompleter() {}
 
-    @Override
-    public ReplacementOptions complete(String code, int at) {
-        Collection<String> suggestions =
-                new AutoSuggester(lexerAndParserFactory, code).suggestCompletions();
-        return new ReplacementOptions(new ArrayList<>(suggestions), at, at);
-    }
+	@Override
+	public ReplacementOptions complete(String code, int at) {
+		Collection<String> suggestions =
+				new AutoSuggester(lexerAndParserFactory, code).suggestCompletions();
+		return new ReplacementOptions(new ArrayList<>(suggestions), at, at);
+	}
 }

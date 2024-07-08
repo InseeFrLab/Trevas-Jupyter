@@ -3,8 +3,11 @@ package fr.insee.trevas.jupyter;
 
 import fr.insee.vtl.engine.VtlScriptEngine;
 import fr.insee.vtl.model.Dataset;
+import fr.insee.vtl.model.InMemoryDataset;
 import fr.insee.vtl.model.PersistentDataset;
 import fr.insee.vtl.model.Structured;
+import fr.insee.vtl.sdmx.SDMXVTLWorkflow;
+import fr.insee.vtl.sdmx.TrevasSDMXUtils;
 import fr.insee.vtl.spark.SparkDataset;
 import io.github.spencerpark.jupyter.channels.JupyterConnection;
 import io.github.spencerpark.jupyter.channels.JupyterSocket;
@@ -13,237 +16,301 @@ import io.github.spencerpark.jupyter.kernel.KernelConnectionProperties;
 import io.github.spencerpark.jupyter.kernel.LanguageInfo;
 import io.github.spencerpark.jupyter.kernel.ReplacementOptions;
 import io.github.spencerpark.jupyter.kernel.display.DisplayData;
+import io.sdmx.api.io.ReadableDataLocation;
+import io.sdmx.utils.core.io.ReadableDataLocationTmp;
+import org.apache.spark.sql.SparkSession;
+
+import javax.script.ScriptContext;
+import javax.script.ScriptEngineFactory;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
-import javax.script.ScriptEngineFactory;
-import org.apache.spark.sql.SparkSession;
 
 public class VtlKernel extends BaseKernel {
 
-    private static DisplayData displayData = new DisplayData();
-    private static SparkSession spark;
-    private final VtlScriptEngine engine;
-    private final LanguageInfo info;
-    private final AutoCompleter autoCompleter;
+	private static DisplayData displayData = new DisplayData();
+	private static SparkSession spark;
+	private static VtlScriptEngine engine;
+	private final LanguageInfo info;
+	private final AutoCompleter autoCompleter;
 
-    public VtlKernel() throws Exception {
-        spark = SparkUtils.buildSparkSession();
-        this.engine = SparkUtils.buildSparkEngine(spark);
-        System.out.println("Loaded VTL engine " + engine.getFactory().getEngineName());
-        ScriptEngineFactory factory = engine.getFactory();
-        this.info =
-                new LanguageInfo.Builder(factory.getEngineName())
-                        .version(factory.getEngineVersion())
-                        .build();
-        registerGlobalMethods();
-        this.autoCompleter = new OranoranCompleter();
-    }
+	public VtlKernel() throws Exception {
+		spark = SparkUtils.buildSparkSession();
+		engine = SparkUtils.buildSparkEngine(spark);
+		System.out.println("Loaded VTL engine " + engine.getFactory().getEngineName());
+		ScriptEngineFactory factory = engine.getFactory();
+		this.info =
+				new LanguageInfo.Builder(factory.getEngineName())
+						.version(factory.getEngineVersion())
+						.build();
+		registerGlobalMethods();
+		this.autoCompleter = new OranoranCompleter();
+	}
 
-    private static Map<String, Dataset.Role> getRoleMap(
-            Collection<Structured.Component> components) {
-        return components.stream()
-                .collect(
-                        Collectors.toMap(
-                                Structured.Component::getName, Structured.Component::getRole));
-    }
+	private static Map<String, Dataset.Role> getRoleMap(
+			Collection<Structured.Component> components) {
+		return components.stream()
+				.collect(
+						Collectors.toMap(
+								Structured.Component::getName, Structured.Component::getRole));
+	}
 
-    private static Map<String, Dataset.Role> getRoleMap(fr.insee.vtl.model.Dataset dataset) {
-        return getRoleMap(dataset.getDataStructure().values());
-    }
+	private static Map<String, Dataset.Role> getRoleMap(fr.insee.vtl.model.Dataset dataset) {
+		return getRoleMap(dataset.getDataStructure().values());
+	}
 
-    private static SparkDataset asSparkDataset(Dataset dataset) {
-        if (dataset instanceof SparkDataset) {
-            return (SparkDataset) dataset;
-        }
-        if (dataset instanceof PersistentDataset) {
-            fr.insee.vtl.model.Dataset ds = ((PersistentDataset) dataset).getDelegate();
-            if (ds instanceof SparkDataset) {
-                return (SparkDataset) ds;
-            } else {
-                return new SparkDataset(ds, getRoleMap(dataset), spark);
-            }
-        }
-        throw new IllegalArgumentException("Unknow dataset type");
-    }
+	private static SparkDataset asSparkDataset(Dataset dataset) {
+		if (dataset instanceof SparkDataset) {
+			return (SparkDataset) dataset;
+		}
+		if (dataset instanceof PersistentDataset) {
+			fr.insee.vtl.model.Dataset ds = ((PersistentDataset) dataset).getDelegate();
+			if (ds instanceof SparkDataset) {
+				return (SparkDataset) ds;
+			} else {
+				return new SparkDataset(ds, getRoleMap(dataset), spark);
+			}
+		}
+		throw new IllegalArgumentException("Unknow dataset type");
+	}
 
-    public static SparkDataset loadParquet(String path) throws Exception {
-        return SparkUtils.readParquetDataset(spark, path);
-    }
+	public static SparkDataset loadParquet(String path) throws Exception {
+		return SparkUtils.readParquetDataset(spark, path);
+	}
 
-    public static SparkDataset loadCSV(String path) throws Exception {
-        return SparkUtils.readCSVDataset(spark, path);
-    }
+	public static SparkDataset loadCSV(String path) throws Exception {
+		return SparkUtils.readCSVDataset(spark, path);
+	}
 
-    public static SparkDataset loadSas(String path) throws Exception {
-        return SparkUtils.readSasDataset(spark, path);
-    }
+	public static SparkDataset loadSas(String path) throws Exception {
+		return SparkUtils.readSasDataset(spark, path);
+	}
 
-    public static String writeParquet(String path, Dataset ds) {
-        SparkUtils.writeParquetDataset(path, asSparkDataset(ds));
-        return "Dataset written: '" + path + "'";
-    }
+	public static String writeParquet(String path, Dataset ds) {
+		SparkUtils.writeParquetDataset(path, asSparkDataset(ds));
+		return "Dataset written: '" + path + "'";
+	}
 
-    public static String writeCSV(String path, Dataset ds) {
-        SparkUtils.writeCSVDataset(path, asSparkDataset(ds));
-        return "Dataset written: '" + path + "'";
-    }
+	public static String writeCSV(String path, Dataset ds) {
+		SparkUtils.writeCSVDataset(path, asSparkDataset(ds));
+		return "Dataset written: '" + path + "'";
+	}
 
-    public static String getSize(Dataset ds) {
-        SparkDataset sparkDataset = asSparkDataset(ds);
-        return "Dataset size: " + sparkDataset.getDataPoints().size();
-    }
+	public static String getSize(Dataset ds) {
+		SparkDataset sparkDataset = asSparkDataset(ds);
+		return "Dataset size: " + sparkDataset.getDataPoints().size();
+	}
 
-    public static Object show(Object o) {
-        if (o instanceof Dataset) {
-            SparkDataset dataset = asSparkDataset((Dataset) o);
-            var roles =
-                    dataset.getDataStructure().entrySet().stream()
-                            .collect(
-                                    Collectors.toMap(
-                                            Map.Entry::getKey, e -> e.getValue().getRole()));
-            showDataset(new SparkDataset(dataset.getSparkDataset().limit(50), roles));
-        } else {
-            displayData.putText(o.toString());
-        }
-        return o;
-    }
+	public static Object show(Object o) {
+		if (o instanceof Dataset) {
+			SparkDataset dataset = asSparkDataset((Dataset) o);
+			var roles =
+					dataset.getDataStructure().entrySet().stream()
+							.collect(
+									Collectors.toMap(
+											Map.Entry::getKey, e -> e.getValue().getRole()));
+			showDataset(new SparkDataset(dataset.getSparkDataset().limit(50), roles));
+		} else {
+			displayData.putText(o.toString());
+		}
+		return o;
+	}
 
-    private static void showDataset(Dataset dataset) {
-        var b = new StringBuilder();
-        b.append("<table id='dataset_").append(dataset.hashCode()).append("' class='display'>");
-        b.append("<thead>");
-        b.append("<tr>");
-        dataset.getDataStructure()
-                .forEach(
-                        (name, component) -> {
-                            b.append("<th>").append(name).append("</th>");
-                        });
-        b.append("</tr>");
-        b.append("</thead>");
-        b.append("<tbody>");
-        dataset.getDataPoints()
-                .forEach(
-                        row -> {
-                            b.append("<tr>");
-                            dataset.getDataStructure()
-                                    .keySet()
-                                    .forEach(
-                                            name -> {
-                                                b.append("<td>")
-                                                        .append(row.get(name))
-                                                        .append("</td>");
-                                            });
-                            b.append("</tr>");
-                        });
-        b.append("</tbody>");
-        b.append("</table>");
-        b.append(
-                "<script\n"
-                        + "  src=\"https://code.jquery.com/jquery-3.6.0.slim.min.js\"\n"
-                        + "  integrity=\"sha256-u7e5khyithlIdTpu22PHhENmPcRdFiHRjhAuHcs05RI=\"\n"
-                        + "  crossorigin=\"anonymous\"></script>");
-        b.append(
-                "<link rel=\"stylesheet\" type=\"text/css\""
-                    + " href=\"https://cdn.datatables.net/1.12.1/css/jquery.dataTables.css\">\n"
-                    + "  \n"
-                    + "<script type=\"text/javascript\" charset=\"utf8\""
-                    + " src=\"https://cdn.datatables.net/1.12.1/js/jquery.dataTables.js\"></script>\n");
-        b.append(
-                "<script type=\"text/javascript\">"
-                        + "$(document).ready( function () {\n"
-                        + "    $('#dataset_"
-                        + dataset.hashCode()
-                        + "').DataTable();\n"
-                        + "} );"
-                        + "</script>");
-        displayData.putHTML(b.toString());
-    }
+	private static void showDataset(Dataset dataset) {
+		displayData.putHTML(DatasetUtils.datasetToDisplay(dataset));
+	}
 
-    public static Object showMetadata(Object o) {
-        if (o instanceof Dataset) {
-            SparkDataset ds = (SparkDataset) o;
-            StringBuilder sb = new StringBuilder();
-            Structured.DataStructure dataStructure = ds.getDataStructure();
-            dataStructure.forEach(
-                    (key, value) -> {
-                        sb.append(key)
-                                .append(" (")
-                                .append(value.getRole().name())
-                                .append(" - ")
-                                .append(value.getType().getSimpleName())
-                                .append(")")
-                                .append("\n");
-                    });
-            displayData.putText(sb.toString());
-        } else {
-            displayData.putText(o.toString());
-        }
-        return o;
-    }
+	public static Object showMetadata(Object o) {
+		if (o instanceof Dataset) {
+			displayData.putHTML(DatasetUtils.datasetMetadataToDisplay((Dataset) o));
+		} else {
+			displayData.putText(o.toString());
+		}
+		return o;
+	}
 
-    public static void main(String[] args) throws Exception {
+	public static Dataset loadSDMXEmptySource(String path, String id) {
+		Structured.DataStructure structure = TrevasSDMXUtils.buildStructureFromSDMX3(path, id);
+		return new InMemoryDataset(List.of(List.of()), structure);
+	}
 
-        if (args.length < 1) throw new IllegalArgumentException("Missing connection file argument");
+	public static Dataset loadSDMXSource(String path, String id, String dataPath) {
+		Structured.DataStructure structure = TrevasSDMXUtils.buildStructureFromSDMX3(path, id);
+		return new SparkDataset(
+				spark.read()
+						.option("header", "true")
+						.option("delimiter", ";")
+						.option("quote", "\"")
+						.csv(dataPath),
+				structure);
+	}
 
-        Path connectionFile = Paths.get(args[0]);
+	public static void runSDMXPreview(String path) {
+		ReadableDataLocation rdl = new ReadableDataLocationTmp(path);
 
-        if (!Files.isRegularFile(connectionFile))
-            throw new IllegalArgumentException(
-                    "Connection file '" + connectionFile + "' isn't a file.");
+		SDMXVTLWorkflow sdmxVtlWorkflow = new SDMXVTLWorkflow(engine, rdl, Map.of());
 
-        String contents = new String(Files.readAllBytes(connectionFile));
+		Map<String, Dataset> emptyDatasets = sdmxVtlWorkflow.getEmptyDatasets();
+		engine.getBindings(ScriptContext.ENGINE_SCOPE).putAll(emptyDatasets);
 
-        JupyterSocket.JUPYTER_LOGGER.setLevel(Level.WARNING);
+		Map<String, PersistentDataset> results = sdmxVtlWorkflow.run();
 
-        KernelConnectionProperties connProps = KernelConnectionProperties.parse(contents);
-        JupyterConnection connection = new JupyterConnection(connProps);
+		var result = new StringBuilder();
 
-        VtlKernel kernel = new VtlKernel();
+		results.forEach(
+				(k, v) -> {
+					result.append("<h2>")
+							.append(k)
+							.append("</h2>")
+							.append(DatasetUtils.datasetMetadataToDisplay(v));
+				});
 
-        kernel.becomeHandlerForConnection(connection);
+		displayData.putHTML(result.toString());
+	}
 
-        connection.connect();
-        connection.waitUntilClose();
-    }
+	public static void runSDMX(String path, String data) {
+		String[] dataList = data.split(",");
+		if (dataList.length % 2 != 0) {
+			throw new IllegalArgumentException("Data params length invalid: " + dataList.length);
+		}
+		Map<String, String> dataBindings = new HashMap<>();
+		for (int i = 0; i < dataList.length; i = i + 2) {
+			dataBindings.put(dataList[i].trim(), dataList[i + 1].trim());
+		}
+		Map<String, Dataset> inputs =
+				dataBindings.entrySet().stream()
+						.collect(
+								Collectors.toMap(
+										Map.Entry::getKey,
+										e -> {
+											Structured.DataStructure structure =
+													TrevasSDMXUtils.buildStructureFromSDMX3(
+															path, e.getKey());
+											return new SparkDataset(
+													spark.read()
+															.option("header", "true")
+															.option("delimiter", ";")
+															.option("quote", "\"")
+															.csv(e.getValue()),
+													structure);
+										}));
 
-    private void registerGlobalMethods() throws NoSuchMethodException {
-        this.engine.registerGlobalMethod(
-                "loadParquet", VtlKernel.class.getMethod("loadParquet", String.class));
-        this.engine.registerGlobalMethod(
-                "loadCSV", VtlKernel.class.getMethod("loadCSV", String.class));
-        this.engine.registerGlobalMethod(
-                "loadSas", VtlKernel.class.getMethod("loadSas", String.class));
-        this.engine.registerGlobalMethod(
-                "writeParquet",
-                VtlKernel.class.getMethod("writeParquet", String.class, Dataset.class));
-        this.engine.registerGlobalMethod(
-                "writeCSV", VtlKernel.class.getMethod("writeCSV", String.class, Dataset.class));
-        this.engine.registerGlobalMethod("show", VtlKernel.class.getMethod("show", Object.class));
-        this.engine.registerGlobalMethod(
-                "showMetadata", VtlKernel.class.getMethod("showMetadata", Object.class));
-        this.engine.registerGlobalMethod(
-                "size", VtlKernel.class.getMethod("getSize", Dataset.class));
-    }
+		ReadableDataLocation rdl = new ReadableDataLocationTmp(path);
+		SDMXVTLWorkflow sdmxVtlWorkflow = new SDMXVTLWorkflow(engine, rdl, inputs);
+		Map<String, PersistentDataset> results = sdmxVtlWorkflow.run();
 
-    @Override
-    public synchronized DisplayData eval(String expr) throws Exception {
-        displayData = new DisplayData();
-        this.engine.eval(expr);
-        return displayData;
-    }
+		var result = new StringBuilder();
 
-    @Override
-    public ReplacementOptions complete(String code, int at) {
-        return this.autoCompleter.complete(code, at);
-    }
+		results.forEach(
+				(k, v) -> {
+					result.append("<h2>")
+							.append(k)
+							.append("</h2>")
+							.append(DatasetUtils.datasetToDisplay(v));
+				});
 
-    @Override
-    public LanguageInfo getLanguageInfo() {
-        return this.info;
-    }
+		displayData.putHTML(result.toString());
+	}
+
+	public static void getTransformationsVTL(String path) {
+		ReadableDataLocation rdl = new ReadableDataLocationTmp(path);
+		SDMXVTLWorkflow sdmxVtlWorkflow = new SDMXVTLWorkflow(engine, rdl, Map.of());
+		String vtl = sdmxVtlWorkflow.getTransformationsVTL();
+
+		displayData.putText(vtl);
+	}
+
+	public static void getRulesetsVTL(String path) {
+		ReadableDataLocation rdl = new ReadableDataLocationTmp(path);
+		SDMXVTLWorkflow sdmxVtlWorkflow = new SDMXVTLWorkflow(engine, rdl, Map.of());
+		String dprs = sdmxVtlWorkflow.getRulesetsVTL();
+
+		displayData.putText(dprs);
+	}
+
+	public static void main(String[] args) throws Exception {
+
+		if (args.length < 1) throw new IllegalArgumentException("Missing connection file argument");
+
+		Path connectionFile = Paths.get(args[0]);
+
+		if (!Files.isRegularFile(connectionFile))
+			throw new IllegalArgumentException(
+					"Connection file '" + connectionFile + "' isn't a file.");
+
+		String contents = new String(Files.readAllBytes(connectionFile));
+
+		JupyterSocket.JUPYTER_LOGGER.setLevel(Level.WARNING);
+
+		KernelConnectionProperties connProps = KernelConnectionProperties.parse(contents);
+		JupyterConnection connection = new JupyterConnection(connProps);
+
+		VtlKernel kernel = new VtlKernel();
+
+		kernel.becomeHandlerForConnection(connection);
+
+		connection.connect();
+		connection.waitUntilClose();
+	}
+
+	private void registerGlobalMethods() throws NoSuchMethodException {
+		this.engine.registerGlobalMethod(
+				"loadParquet", VtlKernel.class.getMethod("loadParquet", String.class));
+		this.engine.registerGlobalMethod(
+				"loadCSV", VtlKernel.class.getMethod("loadCSV", String.class));
+		this.engine.registerGlobalMethod(
+				"loadSas", VtlKernel.class.getMethod("loadSas", String.class));
+		this.engine.registerGlobalMethod(
+				"writeParquet",
+				VtlKernel.class.getMethod("writeParquet", String.class, Dataset.class));
+		this.engine.registerGlobalMethod(
+				"writeCSV", VtlKernel.class.getMethod("writeCSV", String.class, Dataset.class));
+		this.engine.registerGlobalMethod("show", VtlKernel.class.getMethod("show", Object.class));
+		this.engine.registerGlobalMethod(
+				"showMetadata", VtlKernel.class.getMethod("showMetadata", Object.class));
+		this.engine.registerGlobalMethod(
+				"size", VtlKernel.class.getMethod("getSize", Dataset.class));
+
+		// SDMX
+		this.engine.registerGlobalMethod(
+				"loadSDMXEmptySource",
+				VtlKernel.class.getMethod("loadSDMXEmptySource", String.class, String.class));
+		this.engine.registerGlobalMethod(
+				"loadSDMXSource",
+				VtlKernel.class.getMethod(
+						"loadSDMXSource", String.class, String.class, String.class));
+		this.engine.registerGlobalMethod(
+				"runSDMXPreview", VtlKernel.class.getMethod("runSDMXPreview", String.class));
+		this.engine.registerGlobalMethod(
+				"runSDMX", VtlKernel.class.getMethod("runSDMX", String.class, String.class)
+		);
+		this.engine.registerGlobalMethod(
+				"getTransformationsVTL",
+				VtlKernel.class.getMethod("getTransformationsVTL", String.class));
+		this.engine.registerGlobalMethod(
+				"getRulesetsVTL", VtlKernel.class.getMethod("getRulesetsVTL", String.class));
+	}
+
+	@Override
+	public synchronized DisplayData eval(String expr) throws Exception {
+		displayData = new DisplayData();
+		this.engine.eval(expr);
+		return displayData;
+	}
+
+	@Override
+	public ReplacementOptions complete(String code, int at) {
+		return this.autoCompleter.complete(code, at);
+	}
+
+	@Override
+	public LanguageInfo getLanguageInfo() {
+		return this.info;
+	}
 }

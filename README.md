@@ -61,5 +61,6 @@ Have a look to [this project definition](https://github.com/Making-Sense-Info/Tr
 Fill the `INIT_PROJECT_URL` environment variable with your script adress and run:
 
 ```bash
+docker pull inseefrlab/trevas-jupyter:latest
 docker run -p 8888:8888 -e INIT_PROJECT_URL="https://raw.githubusercontent.com/Making-Sense-Info/Trevas-Jupyter-Training/main/init-notebook.sh" inseefrlab/trevas-jupyter:latest
 ```
