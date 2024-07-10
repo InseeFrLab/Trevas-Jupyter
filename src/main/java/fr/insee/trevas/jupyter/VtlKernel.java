@@ -107,22 +107,16 @@ public class VtlKernel extends BaseKernel {
 		return "Dataset size: " + sparkDataset.getDataPoints().size();
 	}
 
-	public static Object show(Object o) {
+	public static Object show(Object o) throws ClassNotFoundException {
 		if (o instanceof Dataset) {
-			SparkDataset dataset = asSparkDataset((Dataset) o);
-			var roles =
-					dataset.getDataStructure().entrySet().stream()
-							.collect(
-									Collectors.toMap(
-											Map.Entry::getKey, e -> e.getValue().getRole()));
-			showDataset(new SparkDataset(dataset.getSparkDataset().limit(50), roles));
+			showDataset((SparkDataset) o);
 		} else {
 			displayData.putText(o.toString());
 		}
 		return o;
 	}
 
-	private static void showDataset(Dataset dataset) {
+	private static void showDataset(Dataset dataset) throws ClassNotFoundException {
 		displayData.putHTML(DatasetUtils.datasetToDisplay(dataset));
 	}
 
@@ -209,10 +203,14 @@ public class VtlKernel extends BaseKernel {
 
 		results.forEach(
 				(k, v) -> {
-					result.append("<h2>")
-							.append(k)
-							.append("</h2>")
-							.append(DatasetUtils.datasetToDisplay(v));
+					try {
+						result.append("<h2>")
+								.append(k)
+								.append("</h2>")
+								.append(DatasetUtils.datasetToDisplay(v));
+					} catch (ClassNotFoundException e) {
+						throw new RuntimeException(e);
+					}
 				});
 
 		displayData.putHTML(result.toString());
