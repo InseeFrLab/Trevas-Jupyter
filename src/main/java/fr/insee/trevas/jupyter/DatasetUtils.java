@@ -10,12 +10,21 @@ import java.util.Map;
 
 public class DatasetUtils {
 
-	public static String datasetToDisplay(Dataset dataset) {
+	public static String datasetToDisplay(Dataset dataset) throws ClassNotFoundException {
 		Map<String, Dataset.Role> roles = dataset.getDataStructure().getRoles();
-		Dataset reducedDataset = new SparkDataset(
-				((SparkDataset) ((PersistentDataset) dataset).getDelegate())
-						.getSparkDataset()
-						.limit(50), roles);
+		SparkDataset sparkDs;
+		if (dataset instanceof PersistentDataset) {
+			sparkDs = ((SparkDataset) ((PersistentDataset) dataset).getDelegate());
+		} else if (dataset instanceof SparkDataset) {
+			sparkDs = (SparkDataset) dataset;
+		} else {
+			throw new ClassNotFoundException(dataset.getClass().getName() +
+					" unhandled in datasetToDisplay method");
+		}
+		var reducedDataset = new SparkDataset(
+				sparkDs.getSparkDataset().limit(50),
+				roles
+		);
 		var b = new StringBuilder();
 		b.append("<table id='dataset_").append(reducedDataset.hashCode()).append("' class='display'>");
 		b.append("<thead>");
