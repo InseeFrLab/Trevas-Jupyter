@@ -5,6 +5,21 @@ Jupyter notebook providing VTL support through Trevas engine
 [![Build Status](https://github.com/InseeFrLab/Trevas-Jupyter/actions/workflows/ci.yml/badge.svg)](https://github.com/InseeFrLab/Trevas-Jupyter/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 
+## Usage
+
+Run `mvn package` to bundle the VTL Kernel.
+
+### Without Docker
+
+TODO
+
+### With Docker
+
+```shell
+docker build . -t jupyter_vtl
+docker run -p 8888:8888 jupyter_vtl
+```
+
 ## Custom functions
 
 Custom functions have been introduced into the Trevas engine.
