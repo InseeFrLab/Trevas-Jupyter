@@ -8,7 +8,7 @@
     <description>Jupyter notebook providing VTL support through Trevas engine</description>
     <artifactId>trevas-jupyter</artifactId>
     <groupId>fr.insee</groupId>
-    <version>0.8.0</version>
+    <version>0.9.0</version>
 
     <licenses>
         <license>
@@ -20,7 +20,7 @@
     <properties>
         <jdk.version>17</jdk.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <trevas.version>1.10.0</trevas.version>
+        <trevas.version>1.12.0</trevas.version>
         <spotless.version>2.43.0</spotless.version>
     </properties>
 
