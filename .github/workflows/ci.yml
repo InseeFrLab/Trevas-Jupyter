@@ -132,7 +132,7 @@ jobs:
           push: true
           tags: |
             inseefrlab/trevas-jupyter:${{ steps.extract_version.outputs.VERSION }}
-            ${{ github.ref == 'refs/heads/main' && 'inseefrlab/trevas-jupyter:latest' || '' }}
+            inseefrlab/trevas-jupyter:latest
           labels: ${{ steps.docker_meta.outputs.labels }}
 
       - name: Image digest
